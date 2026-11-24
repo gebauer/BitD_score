@@ -37,6 +37,14 @@ Hooks.once("init", () => {
     name: "Regelbuch: Seitenversatz", hint: "PDF-Seite = gedruckte Seite + Versatz.",
     scope: "world", config: true, type: Number, default: 8
   });
+  game.settings.register(MOD, "skylineImage", {
+    name: "Skyline-Bild",
+    hint: "Bild am unteren Rand der Tisch-Ansicht. Am besten außerhalb des Modulordners ablegen (z. B. assets/bitd-score/), damit es Updates übersteht. Leer = keine Skyline.",
+    scope: "world", config: true, type: String, filePicker: "image",
+    default: "assets/bitd-score/skyline-a.webp",
+    onChange: applySkyline
+  });
+  applySkyline();
   game.settings.register(MOD, "obstacleDeck", {
     name: "Kartenstapel für Hindernisse", scope: "world", config: true, type: String, default: "Obstacles"
   });
@@ -57,6 +65,17 @@ Hooks.once("setup", () => {
     onChange: () => syncTable()
   });
 });
+
+/** Skyline als CSS-Variable setzen – absolute URL, damit sie nicht relativ zum Stylesheet aufgelöst wird. */
+function applySkyline() {
+  const path = String(game.settings.get(MOD, "skylineImage") ?? "").trim();
+  let value = "none";
+  if (path) {
+    const href = /^(https?:|data:)/.test(path) ? path : new URL(foundry.utils.getRoute(path), window.location.origin).href;
+    value = `url("${href.replace(/["\\]/g, "\\$&")}")`;
+  }
+  document.documentElement.style.setProperty("--bs-skyline", value);
+}
 
 function wantsTable() {
   if (game.user.isGM) return false;

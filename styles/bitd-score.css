@@ -63,7 +63,7 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 }
 .bst-board button { font-family: var(--bs-serif); line-height: 1.2; height: auto; width: auto; margin: 0; border-radius: 0; }
 .bst-sky { position: absolute; left: 0; right: 0; bottom: 0; height: 300px; opacity: .22; filter: invert(1);
-  background: url("../assets/skyline-a.webp") bottom center / 100% auto no-repeat; pointer-events: none; }
+  background: var(--bs-skyline, none) bottom center / 100% auto no-repeat; pointer-events: none; }
 
 .bst-paper { background: var(--bs-paper); box-shadow: 0 10px 24px rgba(0,0,0,.55); padding: 26px 30px; display: flex; flex-direction: column; gap: 8px; }
 .bst-paper.tilt-r { transform: rotate(1.8deg); }

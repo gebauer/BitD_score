@@ -22,7 +22,7 @@ Release anlegen: `module.json` und `bitd-score.zip` als Assets an das Release h�
 
 1. Modul in der Welt aktivieren.
 2. Einstellungen → **Beamer-Benutzer**: den Benutzer wählen, der am Beamer-PC eingeloggt ist.
-3. Optional: Ordner für Scores, Regelbuch-UUID/Versatz (PDF Pager), Kartenstapel für Hindernisse.
+3. Optional: Skyline-Bild (siehe unten), Ordner für Scores, Regelbuch-UUID/Versatz (PDF Pager), Kartenstapel für Hindernisse.
 4. **Kirsty** auf dem SL-PC und dem Beamer-PC installieren (Desktop-Lizenz – die Schrift wird deshalb nicht mitgeliefert). Ohne Kirsty fällt die Anzeige auf Oswald zurück.
 
 ## Bedienung
@@ -57,8 +57,8 @@ Im Wizard verknüpfst du die Vorbereitung im Hinweiskasten, sobald die Spieler i
 
 - Alegreya, Alegreya SC, Oswald: SIL Open Font License (siehe `fonts/`).
 - Holztextur (`assets/holz.webp`) und Tintenklecks (`assets/tinte.webp`, freie Grafik) sind im Modul enthalten.
-- **Skylines – nur lokal, nicht im Repo/Release** (Lizenz unklar). Wer sie nutzen will, legt sie selbst in `modules/bitd-score/assets/` ab:
+- **Skylines – nur lokal, nicht im Repo/Release** (Lizenz unklar). Einmal auf dem Foundry-Server ablegen, z. B. unter `Data/assets/bitd-score/` (übersteht Modul-Updates), und in den Einstellungen unter **Skyline-Bild** auswählen (Standard: `assets/bitd-score/skyline-a.webp`):
   - `skyline-a.webp` – Skyline A: <https://www.worldanvil.com/w/doskvol-zlifer/a/rowan-house-landmark>
   - `skyline-b.webp` – Skyline B: <https://www.worldanvil.com/w/doskvol-zlifer/a/coalridge-settlement>
 
-  Ohne die Datei bleibt der untere Rand der Tisch-Ansicht einfach leer (die Konsole meldet ein fehlendes Bild).
+  Ohne Bild bleibt der untere Rand der Tisch-Ansicht einfach leer.
