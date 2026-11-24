@@ -1,0 +1,175 @@
+<div class="bsg">
+  <div class="bsg-status">
+    {{#if beamerUser}}
+    <span class="{{#if beamerOnline}}on{{else}}off{{/if}}"><i class="fa-solid fa-display"></i> Beamer: {{beamerUser}} {{#if beamerOnline}}(verbunden){{else}}(offline){{/if}}</span>
+    {{else}}
+    <span class="off"><i class="fa-solid fa-display"></i> Kein Beamer-Benutzer eingestellt (Moduleinstellungen)</span>
+    {{/if}}
+    <span>Modus: <b>{{#if isWizard}}Wizard{{else}}{{#if isScore}}Score{{else}}Karte{{/if}}{{/if}}</b></span>
+  </div>
+
+  {{#unless isWizard}}{{#unless isScore}}
+  <section class="bsg-start">
+    <button type="button" class="bsg-big" data-action="start"><i class="fa-solid fa-play"></i> Neuen Score planen</button>
+    {{#if hasDraft}}<button type="button" data-action="resume"><i class="fa-solid fa-rotate-right"></i> Planung fortsetzen</button>{{/if}}
+    {{#if running.length}}
+    <h3>Laufende Scores</h3>
+    <ul class="bsg-list">
+      {{#each running}}<li><span>{{name}}</span><button type="button" data-action="show" data-entry="{{id}}"><i class="fa-solid fa-display"></i> Am Beamer zeigen</button></li>{{/each}}
+    </ul>
+    {{/if}}
+    <h3>Vorbereitete Scores</h3>
+    <ul class="bsg-list">
+      {{#each allPreps}}<li><span>{{#if used}}✓ {{/if}}{{name}}</span><button type="button" data-action="editPrep" data-prep="{{id}}"><i class="fa-solid fa-pen"></i> Bearbeiten</button></li>
+      {{else}}<li><span class="bsg-tip">Noch keine Vorbereitungen.</span></li>{{/each}}
+    </ul>
+    <button type="button" data-action="newPrep"><i class="fa-solid fa-feather"></i> Neuen Score vorbereiten</button>
+  </section>
+  {{/unless}}{{/unless}}
+
+  {{#if isWizard}}
+  <nav class="bsg-steps">
+    {{#each steps}}
+    <button type="button" class="{{#if active}}active{{/if}}{{#if done}} done{{/if}}" data-action="goto" data-step="{{index}}">{{n}} {{label}}</button>
+    {{/each}}
+  </nav>
+
+  <div class="bsg-hint">
+    <div class="bsg-hint-head"><b>{{step.title}}</b> <span class="bsg-rule">{{{ruleHTML}}}</span></div>
+    <p>{{step.hint}}</p>
+  </div>
+
+  <div class="bsg-prep">
+    {{#if prep}}
+    <div class="bsg-hint-head"><span><i class="fa-solid fa-feather"></i> {{prep.name}}</span>
+      <span><button type="button" data-action="editPrep" data-prep="{{prep.id}}" data-tooltip="Vorbereitung bearbeiten"><i class="fa-solid fa-pen"></i></button>
+      <button type="button" data-action="unlinkPrep" data-tooltip="Verknüpfung lösen"><i class="fa-solid fa-link-slash"></i></button></span></div>
+    {{#if is_art}}{{#if prep.hook}}<p><b>Aufhänger:</b> {{prep.hook}}</p>{{/if}}{{#if prep.loot}}<p><b>Beute:</b> {{prep.loot}}</p>{{/if}}{{/if}}
+    {{#if is_ziel}}
+    {{#each prep.npcs}}<p><b>{{roleLabel}}:</b> {{name}}{{#if public}} <i>(öffentlich)</i>{{/if}}</p>{{/each}}
+    {{#if prep.loot}}<p><b>Beute:</b> {{prep.loot}}</p>{{/if}}
+    {{/if}}
+    {{#if is_plan}}{{#if prep.otherPlans}}<p>Notizen vorhanden für: {{prep.otherPlans}}</p>{{/if}}{{#if prep.planNote}}<p><b>{{prep.planLabel}}:</b> {{prep.planNote}}</p>{{/if}}{{/if}}
+    {{#if is_detail}}{{#if prep.planNote}}<p><b>{{prep.planLabel}}:</b> {{prep.planNote}}</p>{{else}}<p class="bsg-tip">Für diesen Plan nichts vorbereitet – improvisieren.</p>{{/if}}{{/if}}
+    {{#if is_loadout}}{{#if prep.planNote}}<p><b>{{prep.planLabel}}:</b> {{prep.planNote}}</p>{{/if}}{{/if}}
+    {{#if is_engagement}}
+    {{#if prep.strengths}}<p><b>Stark gegen:</b> {{prep.strengths}}</p>{{/if}}
+    {{#if prep.weaknesses}}<p><b>Schwach gegen:</b> {{prep.weaknesses}}</p>{{/if}}
+    <p class="bsg-tip">{{prep.obstacleCount}} Hindernis(se) vorbereitet · {{prep.clockCount}} Uhr(en){{#if prep.hiddenClocks}}, davon {{prep.hiddenClocks}} verdeckt{{/if}} – werden beim Start angelegt.</p>
+    {{/if}}
+    {{else}}
+    <label><i class="fa-solid fa-feather"></i> Vorbereitung
+      <select name="prepLink"><option value="">– keine (improvisiert) –</option>{{#each preps}}<option value="{{id}}">{{name}}</option>{{/each}}</select></label>
+    {{/if}}
+  </div>
+
+  <div class="bsg-body">
+    {{#if is_art}}
+    <div class="bsg-choices">
+      {{#each kinds}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="set" data-path="draft.kind" data-value="{{id}}" data-toggle="1" data-tooltip="{{desc}}">{{label}}</button>{{/each}}
+    </div>
+    <div class="bsg-choices">
+      {{#each sources}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="set" data-path="draft.source" data-value="{{id}}" data-toggle="1">{{label}}</button>{{/each}}
+    </div>
+    <label>Name <input type="text" data-field="draft.name" value="{{draft.name}}" autocomplete="off"></label>
+    {{/if}}
+
+    {{#if is_ziel}}
+    <label>Ziel <input type="text" data-field="draft.target" value="{{draft.target}}" autocomplete="off"></label>
+    <div class="bsg-choices"><span>Tier</span>
+      {{#each tiers}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="set" data-path="draft.tier" data-value="{{value}}">{{label}}</button>{{/each}}
+    </div>
+    <p class="bsg-tip">Beschreibt das Ziel so, dass seine Stärken sichtbar werden – daraus malt ihr später die Startposition.</p>
+    {{/if}}
+
+    {{#if is_plan}}
+    <div class="bsg-choices wrap">
+      {{#each plans}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="set" data-path="draft.plan" data-value="{{id}}" data-toggle="1" data-tooltip="{{desc}} Detail: {{detail}}">{{label}}</button>{{/each}}
+    </div>
+    {{/if}}
+
+    {{#if is_detail}}
+    {{#if plan}}
+    <label>{{plan.detail}} <input type="text" data-field="draft.detail" value="{{draft.detail}}" placeholder="{{plan.placeholder}}" autocomplete="off"></label>
+    <p class="bsg-tip">Unbekannt? Gather Information {{{gatherHTML}}} – Planung bleibt gespeichert.</p>
+    {{else}}<p class="bsg-tip">Noch kein Plan gewählt.</p>{{/if}}
+    {{/if}}
+
+    {{#if is_loadout}}
+    <table class="bsg-loads">
+      {{#each crew}}
+      <tr><th>{{name}}</th>{{#each loads}}<td><button type="button" class="{{#if selected}}selected{{/if}}" data-op="load" data-actor="{{../id}}" data-value="{{id}}">{{label}} ({{value}})</button></td>{{/each}}</tr>
+      {{else}}<tr><td>Keine Spielercharaktere mit Besitzer gefunden.</td></tr>{{/each}}
+    </table>
+    <p class="bsg-tip">Gegenstände erst im Spiel ankreuzen {{{loadRuleHTML}}}.</p>
+    {{/if}}
+
+    {{#if is_engagement}}
+    <div class="bsg-factors">
+      {{#each factors}}
+      <button type="button" class="plus{{#if plusOn}} on{{/if}}" data-op="factor" data-key="{{plusKey}}">+1W {{plus}}</button>
+      <button type="button" class="minus{{#if minusOn}} on{{/if}}" data-op="factor" data-key="{{minusKey}}">−1W {{minus}}</button>
+      {{/each}}
+    </div>
+    <div class="bsg-rollrow">
+      <span class="bsg-pool">Pool: <b>{{poolLabel}}</b> <small>{{poolRule}}</small></span>
+      {{#if roll}}
+      <span class="bsg-result">{{#each roll.dice}}<b class="{{#if hit}}hit{{/if}}">{{v}}</b>{{/each}} → <b class="red">{{roll.position.label}}</b></span>
+      <button type="button" data-action="reroll" data-tooltip="Ergebnis verwerfen"><i class="fa-solid fa-xmark"></i></button>
+      {{else}}
+      <button type="button" class="bsg-big" data-action="roll"><i class="fa-solid fa-dice"></i> Würfeln</button>
+      {{/if}}
+    </div>
+    <div class="bsg-choices">
+      <button type="button" data-action="obstacles"><i class="fa-solid fa-cards-blank"></i> Hindernisse ziehen (nur SL)</button>
+    </div>
+    <p class="bsg-tip">Nicht den Anmarsch beschreiben – direkt zum ersten ernsten Hindernis schneiden.</p>
+    {{/if}}
+  </div>
+
+  <footer class="bsg-nav">
+    <button type="button" data-action="prev" {{#if isFirst}}disabled{{/if}}><i class="fa-solid fa-arrow-left"></i> Zurück</button>
+    <button type="button" data-action="release" data-tooltip="Beamer zeigt wieder die Karte; die Planung bleibt erhalten"><i class="fa-solid fa-map"></i> Pause</button>
+    <button type="button" data-action="reset"><i class="fa-solid fa-trash"></i> Verwerfen</button>
+    {{#if isLast}}
+    <button type="button" class="bsg-big" data-action="begin" {{#unless roll}}disabled{{/unless}}><i class="fa-solid fa-flag-checkered"></i> Score beginnen</button>
+    {{else}}
+    <button type="button" class="bsg-big" data-action="next">Weiter: {{nextLabel}} <i class="fa-solid fa-arrow-right"></i></button>
+    {{/if}}
+  </footer>
+  {{/if}}
+
+  {{#if isScore}}
+  {{#with scoreView}}
+  <div class="bsg-hint">
+    <div class="bsg-hint-head"><b>№ {{no}} · {{name}}</b></div>
+    <p>{{target}} · {{plan}} ({{detail}}) · Start: <b class="red">{{position}}</b></p>
+  </div>
+  {{/with}}
+  <section class="bsg-clocks">
+    <h3>Uhren <small>Klick: +1 · Rechtsklick: −1</small></h3>
+    {{#each rawClocks}}
+    <div class="bsg-clock">
+      <button type="button" class="bsg-clockface" data-action="clockTick" data-clock="{{id}}" aria-label="{{name}} weiterdrehen">
+        <span class="bss-clock{{#if threat}} threat{{/if}}" style="{{style}}"></span>
+      </button>
+      <span class="bsg-clockname{{#if hidden}} hidden{{/if}}">{{name}} <b>{{label}}</b>{{#if hidden}} <i>(verdeckt)</i>{{/if}}</span>
+      <button type="button" data-action="clockHidden" data-clock="{{id}}" data-tooltip="{{#if hidden}}Aufdecken (Beamer zeigt sie){{else}}Verdecken{{/if}}"><i class="fa-solid {{#if hidden}}fa-eye-slash{{else}}fa-eye{{/if}}"></i></button>
+      <button type="button" data-action="clockThreat" data-clock="{{id}}" data-tooltip="Bedrohung / Fortschritt umschalten"><i class="fa-solid {{#if threat}}fa-skull{{else}}fa-person-running{{/if}}"></i></button>
+      <button type="button" data-action="clockRemove" data-clock="{{id}}" data-tooltip="Uhr löschen"><i class="fa-solid fa-trash"></i></button>
+    </div>
+    {{else}}<p class="bsg-tip">Noch keine Uhren.</p>{{/each}}
+    <div class="bss-clockform">
+      <input type="text" name="clockName" placeholder="Name der Uhr" autocomplete="off">
+      <select name="clockSize">{{#each clockSizes}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+      <label><input type="checkbox" name="clockThreat" checked> Bedrohung</label>
+      <button type="button" data-action="clockAdd"><i class="fa-solid fa-plus"></i> Uhr</button>
+    </div>
+  </section>
+  <footer class="bsg-nav">
+    <button type="button" data-action="openJournal"><i class="fa-solid fa-book-open"></i> Journal</button>
+    <button type="button" data-action="release"><i class="fa-solid fa-map"></i> Beamer: Karte</button>
+    <button type="button" class="bsg-big" data-action="start"><i class="fa-solid fa-play"></i> Nächsten Score planen</button>
+  </footer>
+  {{/if}}
+</div>

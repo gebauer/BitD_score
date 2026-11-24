@@ -1,0 +1,6 @@
+*:Zone.Identifier
+*.zip
+node_modules/
+
+# Lizenz unklar – nur lokal (siehe README)
+assets/skyline-*.webp

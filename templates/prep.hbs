@@ -1,0 +1,90 @@
+<div class="bsp bsp-scroll">
+  <fieldset>
+    <legend>Der Job</legend>
+    <label>Name <input type="text" name="name" value="{{p.name}}" placeholder="z. B. Das Lagerhaus am Kanal"></label>
+    <div class="bsp-row">
+      <label class="grow">Ziel <input type="text" name="target" value="{{p.target}}" placeholder="Fraktion, Person oder Ort"></label>
+      <label>Tier <select name="tier"><option value="">–</option>{{#each tiers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="grow">Bezirk <input type="text" name="district" value="{{p.district}}"></label>
+    </div>
+    <label class="stack">Aufhänger <small>Wie die Crew davon erfährt, was der Auftrag ist</small><textarea name="hook" rows="2">{{p.hook}}</textarea></label>
+    <label class="stack">Beute <small>Was zu holen ist – Coin, Gegenstand, Information</small><textarea name="loot" rows="2">{{p.loot}}</textarea></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>NPCs</legend>
+    <div class="bsp-npcs">
+      {{#each npcs}}
+      <div class="bsp-npc">
+        <img src="{{img}}" alt="">
+        <span class="grow">{{name}}</span>
+        <select name="npcs.{{i}}.role">{{#each roles}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <label data-tooltip="Erscheint auch auf der öffentlichen Score-Seite"><input type="checkbox" name="npcs.{{i}}.public" {{#if public}}checked{{/if}}> öffentlich</label>
+        <button type="button" data-action="removeNpc" data-index="{{i}}" aria-label="Entfernen"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      {{else}}
+      <p class="bsg-tip">NPC aus der Actors-Liste hierher ziehen oder unten auswählen.</p>
+      {{/each}}
+    </div>
+    <div class="bsp-row">
+      <select name="_npcPick" class="grow"><option value="">NPC auswählen …</option>{{#each actors}}<option value="{{uuid}}">{{name}}</option>{{/each}}</select>
+      <button type="button" data-action="addNpc"><i class="fa-solid fa-plus"></i> NPC</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Je nach Plan <small>nur ausfüllen, was du brauchst</small></legend>
+    {{#each plans}}
+    <label class="stack">{{label}} <small>{{detail}}</small><textarea name="planNotes.{{id}}" rows="2">{{note}}</textarea></label>
+    {{/each}}
+  </fieldset>
+
+  <fieldset>
+    <legend>Engagement-Hinweise</legend>
+    <label class="stack">Stark gegen … <small>z. B. „Überfall: das Lagerhaus ist eine Festung“ → −1W</small><textarea name="strengths" rows="2">{{p.strengths}}</textarea></label>
+    <label class="stack">Schwach gegen … <small>z. B. „Der Vorarbeiter ist bestechlich“ → +1W</small><textarea name="weaknesses" rows="2">{{p.weaknesses}}</textarea></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Hindernisse</legend>
+    {{#each obstacles}}
+    <div class="bsp-row">
+      {{#if isCard}}
+      <img class="bsp-card" src="{{img}}" alt=""><span class="grow">{{name}}</span>
+      {{else}}
+      <textarea class="grow" name="obstacles.{{i}}.text" rows="2" placeholder="Hindernis beschreiben">{{text}}</textarea>
+      {{/if}}
+      <button type="button" data-action="removeObstacle" data-index="{{i}}" aria-label="Entfernen"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    {{/each}}
+    <div class="bsp-row">
+      {{#if hasDeck}}
+      <select name="_cardPick" class="grow"><option value="">Karte aus „{{deckName}}“ …</option>{{#each cards}}<option value="{{id}}">{{name}}</option>{{/each}}</select>
+      <button type="button" data-action="addCard"><i class="fa-solid fa-plus"></i> Karte</button>
+      {{else}}<span class="bsg-tip grow">Stapel „{{deckName}}“ nicht gefunden (Moduleinstellungen).</span>{{/if}}
+      <button type="button" data-action="addText"><i class="fa-solid fa-plus"></i> Freitext</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Uhren <small>werden beim Start des Scores angelegt</small></legend>
+    {{#each clocks}}
+    <div class="bsp-row">
+      <input class="grow" type="text" name="clocks.{{i}}.name" value="{{name}}" placeholder="Name der Uhr">
+      <select name="clocks.{{i}}.size">{{#each sizes}}<option value="{{s}}" {{#if selected}}selected{{/if}}>{{s}}</option>{{/each}}</select>
+      <label><input type="checkbox" name="clocks.{{i}}.threat" {{#if threat}}checked{{/if}}> Bedrohung</label>
+      <label data-tooltip="Erst sichtbar, wenn du sie im Score aufdeckst"><input type="checkbox" name="clocks.{{i}}.hidden" {{#if hidden}}checked{{/if}}> verdeckt</label>
+      <button type="button" data-action="removeClock" data-index="{{i}}" aria-label="Entfernen"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    {{/each}}
+    <button type="button" data-action="addClock"><i class="fa-solid fa-plus"></i> Uhr</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>Geheime Notizen</legend>
+    <textarea name="gmNotes" rows="4">{{p.gmNotes}}</textarea>
+  </fieldset>
+</div>
+<footer class="bsg-nav">
+  <button type="submit" class="bsg-big"><i class="fa-solid fa-floppy-disk"></i> Speichern</button>
+</footer>

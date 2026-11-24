@@ -1,0 +1,168 @@
+<div class="bst-board">
+  <div class="bst-sky" aria-hidden="true"></div>
+
+  {{#if isWizard}}
+  <nav class="bst-steps" aria-label="Fortschritt">
+    {{#each steps}}
+    <div class="bst-step{{#if active}} active{{/if}}{{#if done}} done{{/if}}"><small>{{n}}</small>{{label}}</div>
+    {{/each}}
+  </nav>
+
+  <header class="bst-head">
+    <div class="bst-banner"><h1>{{step.title}}</h1></div>
+    <p>{{step.ask}}</p>
+  </header>
+
+  <main class="bst-main">
+    {{#if is_art}}
+    <div class="bst-grid3">
+      {{#each kinds}}
+      <button type="button" class="bst-card{{#if selected}} selected{{/if}}" data-op="set" data-path="draft.kind" data-value="{{id}}" data-toggle="1">
+        <span class="bst-card-title">{{label}}</span><span class="bst-card-text">{{desc}}</span>
+        {{#if selected}}<span class="bst-stamp">Gewählt</span>{{/if}}
+      </button>
+      {{/each}}
+    </div>
+    <div class="bst-row">
+      <span class="bst-label">Wie kam der Job zu euch?</span>
+      {{#each sources}}
+      <button type="button" class="bst-pill{{#if selected}} selected{{/if}}" data-op="set" data-path="draft.source" data-value="{{id}}" data-toggle="1">{{label}}</button>
+      {{/each}}
+    </div>
+    <label class="bst-field"><span class="bst-label">Name des Scores</span>
+      <input type="text" data-field="draft.name" value="{{draft.name}}" placeholder="z. B. Das Lagerhaus am Kanal" autocomplete="off"></label>
+    {{/if}}
+
+    {{#if is_ziel}}
+    <label class="bst-field big"><span class="bst-label">Ziel</span>
+      <input type="text" data-field="draft.target" value="{{draft.target}}" placeholder="Fraktion, Person oder Ort" autocomplete="off"></label>
+    <div class="bst-row">
+      <span class="bst-label">Tier des Ziels</span>
+      {{#each tiers}}
+      <button type="button" class="bst-pill tier{{#if selected}} selected{{/if}}" data-op="set" data-path="draft.tier" data-value="{{value}}">{{label}}</button>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if is_plan}}
+    <div class="bst-grid3">
+      {{#each plans}}
+      <button type="button" class="bst-card plan{{#if selected}} selected{{/if}}" style="--tilt:{{tilt}}deg" data-op="set" data-path="draft.plan" data-value="{{id}}" data-toggle="1">
+        <span class="bst-card-title">{{label}}</span>
+        <span class="bst-card-text">{{desc}}</span>
+        <span class="bst-card-foot">Detail: {{detail}}</span>
+        {{#if selected}}<span class="bst-stamp">Gewählt</span>{{/if}}
+      </button>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if is_detail}}
+    {{#if plan}}
+    <div class="bst-paper bst-detail">
+      <span class="bst-label">{{plan.label}} · {{plan.desc}}</span>
+      <span class="bst-card-title">{{plan.detail}}</span>
+      <input type="text" data-field="draft.detail" value="{{draft.detail}}" placeholder="{{plan.placeholder}}" autocomplete="off">
+      <span class="bst-note">Kennt ihr das Detail nicht? Dann müsst ihr es erst herausfinden.</span>
+    </div>
+    {{else}}
+    <div class="bst-paper bst-detail"><span class="bst-card-title">Erst einen Plan wählen</span></div>
+    {{/if}}
+    {{/if}}
+
+    {{#if is_loadout}}
+    <div class="bst-loads">
+      {{#each crew}}
+      <div class="bst-loadrow">
+        <span class="bst-name">{{name}}</span>
+        {{#each loads}}
+        <button type="button" class="bst-pill{{#if selected}} selected{{/if}}" data-op="load" data-actor="{{../id}}" data-value="{{id}}">{{label}} <small>{{value}}</small></button>
+        {{/each}}
+      </div>
+      {{else}}
+      <div class="bst-paper"><span class="bst-card-text">Keine Spielercharaktere gefunden.</span></div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if is_engagement}}
+    <div class="bst-engage">
+      <div class="bst-factors">
+        <div class="bst-label light">1W für das pure Glück – dann:</div>
+        {{#each factors}}
+        <div class="bst-factor">
+          <button type="button" class="bst-fac plus{{#if plusOn}} on{{/if}}" data-op="factor" data-key="{{plusKey}}"><b>+1W</b><span>{{plus}}</span></button>
+          <button type="button" class="bst-fac minus{{#if minusOn}} on{{/if}}" data-op="factor" data-key="{{minusKey}}"><b>−1W</b><span>{{minus}}</span></button>
+        </div>
+        {{/each}}
+      </div>
+      <section class="bst-paper bst-roll" aria-label="Wurf">
+        <div class="bst-pool"><span class="bst-label">Würfelpool</span><b>{{poolLabel}}</b></div>
+        <div class="bst-dice">
+          {{#if roll}}{{#each roll.dice}}<div class="bst-die{{#if hit}} hit{{/if}}">{{v}}</div>{{/each}}
+          {{else}}<div class="bst-wait">Die SL würfelt …</div>{{/if}}
+        </div>
+        <div class="bst-note center">{{poolRule}}</div>
+        <div class="bst-positions">
+          {{#each positions}}<div class="bst-pos{{#if selected}} selected{{/if}}"><b>{{label}}</b><span>{{range}}</span></div>{{/each}}
+        </div>
+      </section>
+      {{#if roll}}<div class="bst-cut">{{roll.cut}}</div>{{/if}}
+    </div>
+    {{/if}}
+  </main>
+
+  <aside class="bst-summary">
+    <div class="bst-paper tilt-r">
+      <span class="bst-label">Der Score</span>
+      <b class="bst-sum-name">{{#if draft.name}}{{draft.name}}{{else}}…{{/if}}</b>
+      {{#if kindLabel}}<span>{{kindLabel}}{{#if sourceLabel}} · {{sourceLabel}}{{/if}}</span>{{/if}}
+      {{#if draft.target}}<span><i>Ziel:</i> {{draft.target}}{{#if tierLabel}} (Tier {{tierLabel}}){{/if}}</span>{{/if}}
+      {{#if plan}}<span><i>Plan:</i> {{plan.label}}</span>{{/if}}
+      {{#if draft.detail}}<span><i>{{plan.detail}}:</i> {{draft.detail}}</span>{{/if}}
+    </div>
+  </aside>
+
+  <footer class="bst-foot">Regelbuch S. {{step.page}}{{#unless isLast}} · als Nächstes: {{nextLabel}}{{/unless}} · die SL führt weiter</footer>
+  {{/if}}
+
+  {{#if isScore}}
+  {{#with scoreView}}
+  <article class="bst-news">
+    <div class="bst-news-meta"><span>Score № {{no}}</span><span>{{kind}}</span><span>Start: {{position}}</span></div>
+    <h1>{{name}}</h1>
+    <div class="bst-facts">
+      <div><small>Ziel</small><b>{{target}}{{#if tier}} (Tier {{tier}}){{/if}}</b></div>
+      <div><small>Plan</small><b>{{plan}}</b></div>
+      <div><small>{{detailLabel}}</small><b>{{detail}}</b></div>
+      <div><small>Start</small><b class="red">{{position}}</b>{{#if rollText}}<i>{{rollText}}</i>{{/if}}</div>
+    </div>
+    <div class="bst-news-crew">
+      <span class="bst-label">Die Crew · Load</span>
+      <ul>{{#each crew}}<li>{{name}} <span>· {{load}}</span></li>{{/each}}</ul>
+    </div>
+    {{#if npcs.length}}
+    <div class="bst-news-crew">
+      <span class="bst-label">Beteiligte</span>
+      <ul>{{#each npcs}}<li>{{name}} <span>· {{role}}</span></li>{{/each}}</ul>
+    </div>
+    {{/if}}
+  </article>
+  <aside class="bst-clocks bst-paper tilt-r {{clockClass}}">
+    <h2>Uhren</h2>
+    {{#if hasClocks}}
+    <div class="bst-clockgrid">
+      {{#each clocks}}
+      <div class="bst-clockbox{{#if full}} full{{/if}}">
+        <div class="bss-clock{{#if threat}} threat{{/if}}" style="{{style}}" role="img" aria-label="{{name}}: {{value}} von {{size}}"></div>
+        <span>{{name}} {{value}}/{{size}}</span>
+        {{#if full}}<span class="bst-stamp small">{{#if threat}}Eingetreten{{else}}Geschafft{{/if}}</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+    {{#if moreClocks}}<div class="bst-more">Außerdem: {{moreClocks}}</div>{{/if}}
+    {{else}}<div class="bst-note">Noch keine Uhren.</div>{{/if}}
+  </aside>
+  {{/with}}
+  {{/if}}
+</div>
