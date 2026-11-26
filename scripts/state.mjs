@@ -153,7 +153,7 @@ export function buildContext(s = getState()) {
     crewCards: d.crew.length > 0 && d.crew.every((c) => c.cardImg),
     crewCardStyle: crewCardStyle(d.crew.length),
     factors: FACTORS.map((f, i) => ({ ...f, i, plusKey: `${i}+`, minusKey: `${i}-`, plusOn: !!d.factors[`${i}+`], minusOn: !!d.factors[`${i}-`] })),
-    pool, poolLabel: pool <= 0 ? "0W" : `${pool}W`,
+    pool, poolZero: pool <= 0, poolLabel: pool <= 0 ? "0W" : `${pool}W`,
     poolRule: pool <= 0 ? "Pool 0: zwei Würfel, der niedrigere zählt" : "Der höchste Würfel zählt",
     roll: null,
     positions: POSITIONS.map((p) => ({ ...p, selected: false })),

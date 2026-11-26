@@ -134,6 +134,18 @@
       <button type="button" class="bsg-big" data-action="roll"><i class="fa-solid fa-dice"></i> Würfeln</button>
       {{/if}}
     </div>
+    {{#unless roll}}
+    <div class="bsg-choices bsg-manual">
+      <span>Echte Würfel – {{#if poolZero}}niedrigster{{else}}höchster{{/if}} Würfel:</span>
+      <button type="button" data-action="manualRoll" data-value="1">1</button>
+      <button type="button" data-action="manualRoll" data-value="2">2</button>
+      <button type="button" data-action="manualRoll" data-value="3">3</button>
+      <button type="button" data-action="manualRoll" data-value="4">4</button>
+      <button type="button" data-action="manualRoll" data-value="5">5</button>
+      <button type="button" data-action="manualRoll" data-value="6">6</button>
+      <button type="button" data-action="manualRoll" data-value="66" {{#if poolZero}}disabled{{/if}} data-tooltip="Kritisch: zwei Sechsen">6 6</button>
+    </div>
+    {{/unless}}
     <div class="bsg-choices">
       <button type="button" data-action="obstacles"><i class="fa-solid fa-cards-blank"></i> Hindernisse ziehen (nur SL)</button>
     </div>

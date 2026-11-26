@@ -386,3 +386,6 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 .bitd-score-paper table.bss-xp { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; }
 .bitd-score-paper table.bss-xp th, .bitd-score-paper table.bss-xp td { border-bottom: 1px solid #c9c5ba; padding: 2px 4px; text-align: center; }
 .bitd-score-paper table.bss-xp td:first-child { text-align: left; }
+.bsg-manual button { flex: none; width: 34px; }
+.bsg-manual button:last-child { width: 44px; }
+.bsg-manual span { font-size: 13px; opacity: .8; }

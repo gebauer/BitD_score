@@ -69,6 +69,24 @@ export async function rollEngagement() {
   await setState((st) => { st.roll = { dice, pool }; });
 }
 
+/** Ergebnis von echten Würfeln eintragen: der entscheidende Würfel (1–6) oder "66" für kritisch. */
+export async function setManualEngagement(value) {
+  const s = getState();
+  const pool = poolOf(s.draft);
+  const crit = String(value) === "66";
+  const v = crit ? 6 : Math.max(1, Math.min(6, Number(value) || 0));
+  if (!v || (crit && pool <= 0)) return;
+  const dice = crit ? [6, 6] : [v];
+  const pos = POSITIONS[evaluateDice(pool, dice).key];
+  const plan = byId(PLANS, s.draft.plan);
+  await ChatMessage.create({
+    speaker: { alias: "Engagement" },
+    content: `<div class="bitd-score-chat"><b>Engagement Roll</b> (echte Würfel) · ${esc(plan?.label ?? "")}${s.draft.detail ? ` (${esc(s.draft.detail)})` : ""}<br>
+      Pool ${pool <= 0 ? "0 (2W, niedrigster)" : pool + "W"} · Ergebnis ${crit ? "6 6" : v} → <b class="pos-${pos.id}">${pos.label}</b></div>`
+  });
+  await setState((st) => { st.roll = { dice, pool, manual: true }; });
+}
+
 /* ---------------- Hindernisse (nur an die SL) ---------------- */
 
 export async function drawObstacles() {
@@ -110,7 +128,7 @@ export function snapshotFrom(data, clocks = []) {
     target: data.target || "–", tier: data.tier == null ? "" : ["0", "I", "II", "III", "IV", "V", "VI"][data.tier],
     plan: plan?.label ?? "–", detailLabel: plan?.detail ?? "Detail", detail: data.detail || "–",
     position: pos?.label ?? "–", positionId: pos?.id ?? "",
-    rollText: data.roll ? `${data.roll.pool <= 0 ? 0 : data.roll.pool}W · ${data.roll.dice.join(" ")}` : "",
+    rollText: data.roll ? `${data.roll.pool <= 0 ? 0 : data.roll.pool}W · ${data.roll.dice.join(" ")}${data.roll.manual ? " (echte Würfel)" : ""}` : "",
     crew: (data.crew ?? []).map((c) => ({ name: c.name, cardImg: c.cardImg ?? "", load: byId(LOADS, data.loads?.[c.id])?.label ?? "–" })),
     phase: data.phase ?? "running",
     created: data.created,

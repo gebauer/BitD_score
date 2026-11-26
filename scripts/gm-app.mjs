@@ -1,6 +1,6 @@
 import { MOD, STEPS, CLOCK_SIZES } from "./data.mjs";
 import { getState, setState, buildContext, request, clockStyle } from "./state.mjs";
-import { startWizard, rereadCrew, resetWizard, rollEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
+import { startWizard, rereadCrew, resetWizard, rollEngagement, setManualEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
 import { captureFocus, restoreFocus, bindInteractions } from "./ui-common.mjs";
 import { listPreps, getPrep, npcRoleLabel, importPreps } from "./prep.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
@@ -26,6 +26,7 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       prev: () => { const s = getState(); return setState((st) => { st.step = Math.max(0, s.step - 1); }); },
       goto: (ev, t) => setState((st) => { st.step = Number(t.dataset.step); }),
       roll: () => rollEngagement(),
+      manualRoll: (ev, t) => setManualEngagement(t.dataset.value),
       reroll: () => setState((st) => { st.roll = null; }),
       obstacles: () => drawObstacles(),
       begin: async () => { const e = await beginScore(); if (e) ui.notifications.info(`Score angelegt: ${e.name}`); },
