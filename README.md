@@ -10,10 +10,10 @@ Geführter Score-Ablauf für *Blades in the Dark* in Foundry VTT (v13/v14), para
 
 ## Installation
 
-Manifest-URL (nachdem das Repo `gebauer/bitd-score` mit Release existiert):
+Manifest-URL (nachdem das Repo `gebauer/BitD_score` mit Release existiert):
 
 ```
-https://github.com/gebauer/bitd-score/releases/latest/download/module.json
+https://github.com/gebauer/BitD_score/releases/latest/download/module.json
 ```
 
 Release anlegen: `module.json` und `bitd-score.zip` als Assets an das Release hängen.
