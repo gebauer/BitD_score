@@ -62,7 +62,7 @@ Ein Objekt oder eine Liste im Vorbereitungs-Format. NPCs dürfen nur mit `name` 
 
 - Alegreya, Alegreya SC, Oswald: SIL Open Font License (siehe `fonts/`).
 - Holztextur (`assets/holz.webp`) und Tintenklecks (`assets/tinte.webp`, freie Grafik) sind im Modul enthalten.
-- **Skylines – nur lokal, nicht im Repo/Release** (Lizenz unklar). Einmal auf dem Foundry-Server ablegen, z. B. unter `Data/assets/bitd-score/` (übersteht Modul-Updates), und in den Einstellungen unter **Skyline-Bild** auswählen (Standard: `assets/bitd-score/skyline-a.webp`):
+- **Skylines – nicht im Repo/Release enthalten** (Lizenz unklar). Das Bild wird nur **einmal auf dem Foundry-Server** abgelegt, z. B. unter `Data/assets/bitd-score/` (übersteht Modul-Updates), und in den Einstellungen unter **Skyline-Bild** ausgewählt (Standard: `assets/bitd-score/skyline-a.webp`). Alle Clients (SL-PC, Beamer-PC) laden es von dort – auf den einzelnen Rechnern muss nichts installiert werden:
   - `skyline-a.webp` – Skyline A: <https://www.worldanvil.com/w/doskvol-zlifer/a/rowan-house-landmark>
   - `skyline-b.webp` – Skyline B: <https://www.worldanvil.com/w/doskvol-zlifer/a/coalridge-settlement>
 
