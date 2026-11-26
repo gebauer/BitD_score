@@ -1,6 +1,6 @@
 import { MOD, DEBRIEF_STEPS, OUTCOMES, HEAT_MODS, XP_ATTRS, XP_TRIGGERS, CREW_XP } from "./data.mjs";
 import { getState, setState, clockStyle } from "./state.mjs";
-import { emptyDebrief, emptyPcXp, debriefCalc, entanglementValue } from "./debrief-model.mjs";
+import { emptyDebrief, emptyPcXp, debriefCalc, entanglementValue, heatModsText } from "./debrief-model.mjs";
 import { snapshotFrom, renderOverview, ruleLink } from "./score.mjs";
 import { getPrep, npcRoleLabel } from "./prep.mjs";
 
@@ -93,6 +93,11 @@ export const debriefNav = {
   discard: () => setState((st) => { st.mode = "score"; st.debrief = null; st.debriefMeta = null; st.debriefStep = 0; })
 };
 
+export const heatExtraOps = {
+  add: () => setState((st) => { if (st.debrief) (st.debrief.heatExtra ??= []).push({ label: "", value: 1 }); }),
+  remove: (i) => setState((st) => { st.debrief?.heatExtra?.splice(Number(i), 1); })
+};
+
 export const factionOps = {
   add: (name = "") => setState((st) => { if (st.debrief) (st.debrief.status ??= []).push({ faction: String(name).slice(0, 80), delta: 0, note: "" }); }),
   remove: (i) => setState((st) => { st.debrief?.status?.splice(Number(i), 1); })
@@ -130,6 +135,7 @@ export async function finishDebrief() {
   d.result = { rep: c.rep, coin: c.coin, tithe: c.tithe, coinToCrew: c.coinToCrew, heat: c.heat,
     heatAfter: c.heatAfter, wantedAfter: c.wantedAfter, overflow: c.overflow };
   d.status = (d.status ?? []).filter((r) => r.faction?.trim());
+  d.heatExtra = (d.heatExtra ?? []).filter((x) => String(x.label ?? "").trim());
   d.finishedAt = Date.now();
   data.debrief = d;
   data.phase = "done";
@@ -184,7 +190,7 @@ export function publicDebrief(d, crew = []) {
     outcome: outcome?.label ?? "–", outcomeId: d.outcome ?? "", failed: d.outcome === "failed", summary: d.summary ?? "",
     coin: c.coin, tithe: c.titheOn ? c.tithe : 0, titheBoss: d.tithe?.boss ?? "", tithePaid: d.tithe?.paid !== false,
     coinToCrew: c.coinToCrew, rep: c.rep, quiet: !!d.quiet,
-    heat: c.heat, heatMods: HEAT_MODS.filter((m) => d.heatMods?.[m.id]).map((m) => `${m.label} +${m.value}`).join(", "),
+    heat: c.heat, heatMods: heatModsText(d),
     exposure: d.exposure ?? 0,
     status: (d.status ?? []).filter((r) => r.faction?.trim()).map((r) => ({ ...r, deltaLabel: r.delta > 0 ? `+${r.delta}` : String(r.delta ?? 0) })),
     entanglement: ent,

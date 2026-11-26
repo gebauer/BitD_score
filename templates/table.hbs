@@ -186,6 +186,7 @@
     </div>
     <div class="bst-row">
       {{#each heatMods}}<span class="bst-pill{{#if on}} selected{{/if}}">+{{value}} {{label}}</span>{{/each}}
+      {{#each heatExtraPublic}}<span class="bst-pill selected">+{{value}} {{label}}</span>{{/each}}
     </div>
     <div class="bst-bignums">
       <div class="bst-paper bst-bignum"><span class="bst-label">Heat</span><b class="red">+{{calc.heat}}</b></div>

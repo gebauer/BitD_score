@@ -19,6 +19,7 @@ export const emptyDebrief = () => ({
   tithe: { boss: "", paid: true, amount: null },
   exposure: 0,
   heatMods: { highProfile: false, hostileTurf: false, war: false, killing: false },
+  heatExtra: [],               // eigene Zuschläge: [{label, value: 1|2}]
   heat: null,
   heatBefore: null,
   wantedBefore: null,
@@ -32,6 +33,17 @@ export const emptyDebrief = () => ({
 const int = (v) => (v === null || v === undefined || v === "" ? null : Number.isFinite(Number(v)) ? Math.trunc(Number(v)) : null);
 const clamp = (v, lo, hi) => (v === null ? null : Math.max(lo, Math.min(hi, v)));
 
+/** Eigene Heat-Zuschläge mit Text (leere Zeilen zählen nicht). */
+export const heatExtras = (d) => (d.heatExtra ?? [])
+  .filter((x) => String(x?.label ?? "").trim())
+  .map((x) => ({ label: String(x.label).trim(), value: Number(x.value) === 2 ? 2 : 1 }));
+
+/** Alle aktiven Heat-Zuschläge als Text, z. B. „Leichen +2, Granate! +1“. */
+export const heatModsText = (d) => [
+  ...HEAT_MODS.filter((m) => d.heatMods?.[m.id]),
+  ...heatExtras(d)
+].map((m) => `${m.label} +${m.value}`).join(", ");
+
 /** Vorschläge und abgeleitete Werte. Gesetzte Werte (≠ null) gehen vor Vorschlägen. */
 export function debriefCalc(d) {
   const crewTier = int(d.crewTier) ?? 0;
@@ -43,7 +55,8 @@ export function debriefCalc(d) {
   const titheOn = !!d.tithe?.boss?.trim() && d.tithe.paid !== false;
   const tithe = titheOn ? (int(d.tithe.amount) ?? titheSuggest) : 0;
   const coinToCrew = Math.max(0, coin - tithe);
-  const heatSuggest = (int(d.exposure) ?? 0) + HEAT_MODS.reduce((n, m) => n + (d.heatMods?.[m.id] ? m.value : 0), 0);
+  const heatSuggest = (int(d.exposure) ?? 0) + HEAT_MODS.reduce((n, m) => n + (d.heatMods?.[m.id] ? m.value : 0), 0)
+    + heatExtras(d).reduce((n, x) => n + x.value, 0);
   const heat = int(d.heat) ?? heatSuggest;
   const heatBefore = int(d.heatBefore);
   const wantedBefore = int(d.wantedBefore);
@@ -93,6 +106,7 @@ const FIELDS = {
 };
 const TOGGLES = new Set(["quiet", "tithe.paid", "entanglement.secret", ...HEAT_MODS.map((m) => `heatMods.${m.id}`)]);
 const STATUS_RE = /^status\.(\d+)\.(faction|delta|note)$/;
+const EXTRA_RE = /^heatExtra\.(\d+)\.(label|value)$/;
 
 function coerce(spec, v) {
   if (spec.kind === "str") return String(v ?? "").slice(0, spec.max);
@@ -120,6 +134,14 @@ export function applyDebriefOp(s, op, args, fromGM) {
       const row = d.status?.[Number(st[1])];
       if (!row) return false;
       row[st[2]] = st[2] === "delta" ? clamp(int(args.value) ?? 0, -3, 3) : String(args.value ?? "").slice(0, st[2] === "note" ? 300 : 80);
+      return true;
+    }
+    const ex = path.match(EXTRA_RE);
+    if (ex) {
+      if (!fromGM) return false;
+      const row = d.heatExtra?.[Number(ex[1])];
+      if (!row) return false;
+      row[ex[2]] = ex[2] === "value" ? (Number(args.value) === 2 ? 2 : 1) : String(args.value ?? "").slice(0, 60);
       return true;
     }
     const spec = Object.hasOwn(FIELDS, path) ? FIELDS[path] : null;
@@ -191,7 +213,9 @@ export function buildDebriefContext(s) {
     coinSizes: COIN_SIZES.map((k) => ({ ...k, coinLabel: k.value === 10 ? "10+" : `${k.value} · ${k.label}`, selected: k.value === 10 ? (c.coin >= 10) : d.coin === k.value })),
     exposures: EXPOSURE.map((e, i) => ({ ...e, selected: Number(d.exposure) === e.value, tilt: [-1.2, 0.8, -0.6, 1.1][i] })),
     heatMods: HEAT_MODS.map((m) => ({ ...m, on: !!d.heatMods?.[m.id] })),
-    heatModsText: HEAT_MODS.filter((m) => d.heatMods?.[m.id]).map((m) => `${m.label} +${m.value}`).join(", "),
+    heatModsText: heatModsText(d),
+    heatExtraRows: (d.heatExtra ?? []).map((x, i) => ({ i, label: x.label ?? "", one: Number(x.value) !== 2, two: Number(x.value) === 2 })),
+    heatExtraPublic: heatExtras(d),
     repOverridden: d.rep !== null && d.rep !== undefined && d.rep !== "",
     heatOverridden: d.heat !== null && d.heat !== undefined && d.heat !== "",
     entDice: (d.entanglement?.rolled ?? []).map((v) => { const hit = !usedDie && v === entValue; if (hit) usedDie = true; return { v, hit }; }),

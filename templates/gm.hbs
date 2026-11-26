@@ -257,6 +257,15 @@
     <div class="bsg-choices wrap">
       {{#each heatMods}}<button type="button" class="{{#if on}}on{{/if}}" data-op="dtoggle" data-path="debrief.heatMods.{{id}}">+{{value}} {{label}}</button>{{/each}}
     </div>
+    {{#each heatExtraRows}}
+    <div class="bsg-status-row">
+      <input type="text" data-field="debrief.heatExtra.{{i}}.label" value="{{label}}" placeholder="z. B. Granate!" autocomplete="off">
+      <button type="button" class="{{#if one}}on{{/if}}" data-op="dset" data-path="debrief.heatExtra.{{i}}.value" data-value="1">+1</button>
+      <button type="button" class="{{#if two}}on{{/if}}" data-op="dset" data-path="debrief.heatExtra.{{i}}.value" data-value="2">+2</button>
+      <button type="button" data-action="dRemoveHeat" data-index="{{i}}" data-tooltip="Zuschlag löschen"><i class="fa-solid fa-trash"></i></button>
+    </div>
+    {{/each}}
+    <div class="bsg-choices"><button type="button" data-action="dAddHeat"><i class="fa-solid fa-plus"></i> Eigener Zuschlag (+1 / +2)</button></div>
     <label>Heat <input type="number" min="0" data-field="debrief.heat" value="{{debrief.heat}}" placeholder="{{calc.heatSuggest}}"><small>Vorschlag: {{calc.heatSuggest}}</small></label>
     <div class="bsg-grid2">
       <label>Heat vorher <input type="number" min="0" max="9" data-field="debrief.heatBefore" value="{{debrief.heatBefore}}" placeholder="?"></label>
