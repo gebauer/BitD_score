@@ -62,7 +62,7 @@ export function applyOp(op, args = {}, fromGM = true) {
         return;
       }
       case "factor": {
-        if (!/^[0-3][+-]$/.test(args.key ?? "")) return;
+        if (!/^\d+[+-]$/.test(args.key ?? "") || !FACTORS[parseInt(args.key)]) return;
         s.draft.factors[args.key] = !s.draft.factors[args.key];
         s.roll = null;
         return;

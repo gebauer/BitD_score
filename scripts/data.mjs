@@ -49,12 +49,13 @@ export const PLANS = [
     placeholder: "z. B. per Gondel durch die Kanäle" }
 ];
 
-/** Engagement: vier Fragenpaare (S. 128). Schlüssel: "<index>+" / "<index>-". */
+/** Engagement: vier Fragenpaare (S. 128) + Unbekannte Umstände. Schlüssel: "<index>+" / "<index>-". */
 export const FACTORS = [
   { plus: "Kühn oder waghalsig?", minus: "Zu komplex, hängt an vielem?" },
   { plus: "Detail trifft eine Schwäche?", minus: "Ziel genau dagegen gewappnet?" },
   { plus: "Freunde oder Kontakte helfen?", minus: "Feinde oder Rivalen mischen mit?" },
-  { plus: "Niedrigerer Tier, günstige Lage?", minus: "Höherer Tier, Ärger im Bezirk?" }
+  { plus: "Niedrigerer Tier, günstige Lage?", minus: "Höherer Tier, Ärger im Bezirk?" },
+  { plus: "Unbekannte Umstände", minus: "Unbekannte Umstände" }
 ];
 
 export const LOADS = [
