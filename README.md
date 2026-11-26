@@ -23,6 +23,7 @@ Release anlegen: `module.json` und `bitd-score.zip` als Assets an das Release h�
 1. Modul in der Welt aktivieren.
 2. Einstellungen → **Beamer-Benutzer**: den Benutzer wählen, der am Beamer-PC eingeloggt ist.
 3. Optional: Skyline-Bild (siehe unten), Ordner für Scores, Regelbuch-UUID/Versatz (PDF Pager), Kartenstapel für Hindernisse.
+   - 📖-Links: Der Wizard öffnet das Regelbuch-Journal selbst und springt im PDF auf *gedruckte Seite + Versatz*. Den Versatz nur in den Wizard-Einstellungen eintragen, nicht zusätzlich in PDF Pager. Klappt das nicht, „Regelbuch öffnen in“ → **Neuer Browser-Tab** wählen (eingebauter PDF-Viewer des Browsers).
 4. **Kirsty** auf dem SL-PC und dem Beamer-PC installieren (Desktop-Lizenz – die Schrift wird deshalb nicht mitgeliefert). Ohne Kirsty fällt die Anzeige auf Oswald zurück.
 
 ## Crew aus Karten
@@ -51,8 +52,9 @@ Nach dem Score führt der Debrief-Wizard in der Reihenfolge des Regelbuchs (Kap.
 **Ergebnis → Payoff → Heat → Verstrickung → Fraktionen → XP → Abschluss**. Der Beamer folgt Schritt für Schritt.
 
 - Starten: SL-Fenster → **Score beenden** (Score-Ansicht oder Liste „Laufende Scores“). Abgeschlossene Scores: **Debrief bearbeiten** – öffnet mit den gespeicherten Werten und überschreibt sie beim Abschließen.
-- **Nur Vorschläge, keine Bögen:** Rep (`2 + Tier Ziel − Tier Crew`, leise = 0), Tribut (`Tier + 1`), Heat (Aufsehen + Zuschläge) werden vorgeschlagen und können überschrieben werden. Tier, Heat und Wanted werden aus dem Crew-Bogen *gelesen*. Charakter- und Crew-Bögen ändert das Modul nie – Coin, Rep, Heat, Status und XP bitte von Hand übertragen.
-- **Verstrickung:** Spalte nach Heat, Würfel = Wanted Level (0 → 2 Würfel, niedrigster). Die Tabelle steht im Regelbuch (📖-Link), Name und Beschreibung trägt die SL ein. „geheim“ = Wurf nur an die SL, nichts am Beamer und nicht auf der Überblick-Seite.
+- **Vorschläge:** Rep (`2 + Tier Ziel − Tier Crew`, leise = 0), Tribut (`Tier + 1`), Heat (Aufsehen + Zuschläge, auch eigene wie „Granate! +1“) werden vorgeschlagen und können überschrieben werden. Tier, Heat und Wanted werden aus dem Crew-Bogen gelesen.
+- **Heat auf den Crew-Bogen:** Knopf „Heat auf Crew-Bogen übertragen“ (Schritt Heat oder Abschluss) schreibt Heat nach Überlauf und Wanted – mit Rückfrage. Berechnet wird aus „Heat vorher“, erneutes Klicken ersetzt also, statt doppelt zu addieren. Alles andere (Coin, Rep, Status, XP) bitte von Hand auf die Bögen übertragen.
+- **Verstrickung:** Spalte nach Heat der Crew (vorher + neu), Würfel = Wanted Level (0 → 2 Würfel, niedrigster). Würfeln oder echte Würfel von Hand eintragen (1–6). Die Tabelle der Spalte wird angezeigt, die gewürfelte Zeile markiert; ein Klick auf einen Eintrag übernimmt ihn. „geheim“ = Wurf nur an die SL, nichts am Beamer und nicht auf der Überblick-Seite.
 - **XP:** Spieler klicken ihre XP am Beamer selbst an (verzweifelte Würfe je Attribut, Auslöser 0/1/2); Crew-XP setzt die SL. Das Buch vergibt Auslöser-XP am Ende der *Sitzung* – hier wird pro Score notiert.
 - **Score abschließen:** Ergebnis in die Flags (`flags.bitd-score.score.debrief`), Eintrag wird zu `NN · Name ✓`, die Überblick-Seite bekommt „Payoff & Konsequenzen“, die 🔒 SL-Seite die Verstrickung und SL-Notizen (der Abschnitt „🔒 Debrief“ wird bei erneutem Abschließen ersetzt – eigene Notizen bitte darüber schreiben).
 - Makro: `game.modules.get("bitd-score").api.debrief(journalEntryId)`.
@@ -84,6 +86,7 @@ Ein Objekt oder eine Liste im Vorbereitungs-Format. NPCs dürfen nur mit `name` 
 ## Lizenzen / Assets
 
 - Alegreya, Alegreya SC, Oswald: SIL Open Font License (siehe `fonts/`).
+- Verstrickungstabelle (`scripts/data.mjs`): nach dem *Blades in the Dark* SRD von One Seven Design, lizenziert unter [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/); Namen und Kurzbeschreibungen frei ins Deutsche übertragen und gekürzt.
 - Holztextur (`assets/holz.webp`) und Tintenklecks (`assets/tinte.webp`, freie Grafik) sind im Modul enthalten.
 - **Skylines – nicht im Repo/Release enthalten** (Lizenz unklar). Das Bild wird nur **einmal auf dem Foundry-Server** abgelegt, z. B. unter `Data/assets/bitd-score/` (übersteht Modul-Updates), und in den Einstellungen unter **Skyline-Bild** ausgewählt (Standard: `assets/bitd-score/skyline-a.webp`). Alle Clients (SL-PC, Beamer-PC) laden es von dort – auf den einzelnen Rechnern muss nichts installiert werden:
   - `skyline-a.webp` – Skyline A: <https://www.worldanvil.com/w/doskvol-zlifer/a/rowan-house-landmark>

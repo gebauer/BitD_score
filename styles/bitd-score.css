@@ -389,3 +389,19 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 .bsg-manual button { flex: none; width: 34px; }
 .bsg-manual button:last-child { width: 44px; }
 .bsg-manual span { font-size: 13px; opacity: .8; }
+.bsg-ent { width: 100%; border: none; background: none; border-collapse: collapse; }
+.bsg-ent caption { text-align: left; font: 700 15px var(--bs-display); text-transform: uppercase; }
+.bsg-ent caption small { font: italic 400 12px var(--bs-serif); text-transform: none; }
+.bsg-ent th { width: 36px; text-align: center; font: 700 15px var(--bs-display); }
+.bsg-ent td { display: flex; gap: 4px; }
+.bsg-ent td button { flex: 1; text-align: left; line-height: 1.2; height: auto; padding: 3px 6px; }
+.bsg-ent td button small { display: block; opacity: .75; }
+.bsg-ent tr.hit th, .bsg-ent tr.hit td { background: #efe3df; }
+.bsg-ent tr.hit th { color: var(--bs-red); }
+.bst-enttable { display: flex; flex-direction: column; gap: 8px; }
+.bst-entrow { display: flex; gap: 18px; align-items: baseline; font-size: 28px; opacity: .55; }
+.bst-entrow b { font: 700 30px var(--bs-display); min-width: 80px; }
+.bst-entrow span + span::before { content: "oder "; font-style: italic; opacity: .6; }
+.bst-entrow.hit { opacity: 1; }
+.bst-entrow.hit b { color: var(--bs-red); }
+.bst-entrow span.chosen { font-weight: 700; text-decoration: underline; }

@@ -153,3 +153,41 @@ export const CREW_XP = [
   { id: "reputation", label: "Ruf gestärkt oder ausgebaut" },
   { id: "nature", label: "Ziele, Antrieb oder Wesen der Crew gezeigt" }
 ];
+
+/**
+ * Verstrickungen (S. 150) nach dem Blades in the Dark SRD (CC BY 3.0, One Seven Design),
+ * Namen und Kurzbeschreibungen frei übersetzt. Details und Optionen: Regelbuch.
+ * Spalte nach Heat der Crew; je Zeile wählt die SL eine der beiden Möglichkeiten.
+ */
+export const ENTANGLEMENTS = {
+  low: { label: "Heat 0–3", rows: [
+    { range: "1–3", min: 1, max: 3, options: [
+      { name: "Ärger mit der Gang", desc: "Eine eurer Gangs oder Kohorten macht wegen ihrer Schwächen Ärger." },
+      { name: "Die üblichen Verdächtigen", desc: "Die Bluecoats greifen sich jemanden aus eurem Umfeld zum Verhör." }] },
+    { range: "4/5", min: 4, max: 5, options: [
+      { name: "Rivalen", desc: "Eine neutrale Fraktion spielt sich auf und will Rep oder Coin – sonst sinkt euer Status." },
+      { name: "Ruhelose Tote", desc: "Ein ruheloser Geist wird von euch angezogen." }] },
+    { range: "6", min: 6, max: 6, options: [
+      { name: "Kooperation", desc: "Eine Fraktion, die euch wohlgesonnen ist, bittet um einen Gefallen." }] }
+  ] },
+  mid: { label: "Heat 4/5", rows: [
+    { range: "1–3", min: 1, max: 3, options: [
+      { name: "Ärger mit der Gang", desc: "Eine eurer Gangs oder Kohorten macht wegen ihrer Schwächen Ärger." },
+      { name: "Befragung", desc: "Die Bluecoats nehmen eine Figur oder Kohorte zur Befragung mit." }] },
+    { range: "4/5", min: 4, max: 5, options: [
+      { name: "Vergeltung", desc: "Eine feindliche Fraktion schlägt zurück." },
+      { name: "Ruhelose Tote", desc: "Ein ruheloser Geist wird von euch angezogen." }] },
+    { range: "6", min: 6, max: 6, options: [
+      { name: "Machtdemonstration", desc: "Eine feindliche Fraktion greift nach einem eurer Claims." }] }
+  ] },
+  high: { label: "Heat 6+", rows: [
+    { range: "1–3", min: 1, max: 3, options: [
+      { name: "Umgedreht", desc: "Ein Kontakt, Auftraggeber oder Hehler wechselt die Seiten." },
+      { name: "Verhör", desc: "Die Bluecoats schnappen sich eine Figur und verhören sie." }] },
+    { range: "4/5", min: 4, max: 5, options: [
+      { name: "Dämonische Aufmerksamkeit", desc: "Ein Dämon wird auf euch aufmerksam – mit einem dunklen Angebot." },
+      { name: "Machtdemonstration", desc: "Eine feindliche Fraktion greift nach einem eurer Claims." }] },
+    { range: "6", min: 6, max: 6, options: [
+      { name: "Verhaftung", desc: "Ein Inspektor bringt den Fall vor Gericht – die Bluecoats wollen jemanden verhaften." }] }
+  ] }
+};

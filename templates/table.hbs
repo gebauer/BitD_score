@@ -203,6 +203,11 @@
       <div class="bst-dice">
         {{#if entDice.length}}{{#each entDice}}<div class="bst-die{{#if hit}} hit{{/if}}">{{v}}</div>{{/each}}{{else}}<div class="bst-wait">Die SL würfelt …</div>{{/if}}
       </div>
+      <div class="bst-enttable">
+        {{#each entTable}}
+        <div class="bst-entrow{{#if hit}} hit{{/if}}"><b>{{range}}</b>{{#each options}}<span class="{{#if chosen}}chosen{{/if}}">{{name}}</span>{{/each}}</div>
+        {{/each}}
+      </div>
       {{#if debrief.entanglement.name}}<span class="bst-card-title">{{debrief.entanglement.name}}</span>{{/if}}
       {{#if debrief.entanglement.text}}<span class="bst-card-text">{{debrief.entanglement.text}}</span>{{/if}}
       {{/if}}

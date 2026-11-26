@@ -1,4 +1,4 @@
-import { DEBRIEF_STEPS, OUTCOMES, COIN_SIZES, EXPOSURE, HEAT_MODS, XP_ATTRS, XP_TRIGGERS, CREW_XP } from "./data.mjs";
+import { DEBRIEF_STEPS, OUTCOMES, COIN_SIZES, EXPOSURE, HEAT_MODS, XP_ATTRS, XP_TRIGGERS, CREW_XP, ENTANGLEMENTS } from "./data.mjs";
 
 /* ------------------------------------------------------------------
  * Debrief: Datenmodell, Rechenregeln, erlaubte Änderungen und
@@ -24,6 +24,7 @@ export const emptyDebrief = () => ({
   heatBefore: null,
   wantedBefore: null,
   entanglement: { rolled: [], name: "", text: "", secret: true },
+  sheetApplied: null,          // {heat, wanted, at} – nach „Auf Crew-Bogen übertragen“
   status: [],
   pcXp: {},
   crewXp: { crewTrigger: 0, aboveStation: 0, reputation: 0, nature: 0 },
@@ -63,14 +64,18 @@ export function debriefCalc(d) {
   let heatAfter = null, wantedAfter = wantedBefore, overflow = false;
   if (heatBefore !== null) {
     heatAfter = heatBefore + heat;
-    if (heatAfter >= 9) { overflow = true; heatAfter -= 9; wantedAfter = (wantedBefore ?? 0) + 1; }
+    wantedAfter = wantedBefore ?? 0;
+    while (heatAfter >= 9) { overflow = true; heatAfter -= 9; wantedAfter += 1; }
+    wantedAfter = Math.min(4, wantedAfter);
+    if (!overflow && wantedBefore === null) wantedAfter = null;
   }
   const columnHeat = heatAfter ?? heat;
-  const column = columnHeat <= 3 ? "Heat 0–3" : columnHeat <= 5 ? "Heat 4/5" : "Heat 6+";
+  const columnKey = columnHeat <= 3 ? "low" : columnHeat <= 5 ? "mid" : "high";
+  const column = ENTANGLEMENTS[columnKey].label;
   const wanted = wantedAfter ?? 0;
   const entDice = wanted <= 0 ? 2 : Math.min(wanted, 4);
   return { crewTier, targetTier, repSuggest, rep, coin, titheSuggest, titheOn, tithe, coinToCrew,
-    heatSuggest, heat, heatBefore, heatAfter, wantedBefore, wantedAfter, overflow, column, columnHeat,
+    heatSuggest, heat, heatBefore, heatAfter, wantedBefore, wantedAfter, overflow, column, columnKey, columnHeat,
     entDice, entZero: wanted <= 0, entKnown: wantedAfter !== null, hasHeatAfter: heatAfter !== null };
 }
 
@@ -221,6 +226,11 @@ export function buildDebriefContext(s) {
     entDice: (d.entanglement?.rolled ?? []).map((v) => { const hit = !usedDie && v === entValue; if (hit) usedDie = true; return { v, hit }; }),
     entValue,
     entSecret: d.entanglement?.secret !== false,
+    entTable: ENTANGLEMENTS[c.columnKey].rows.map((r) => ({
+      ...r, hit: entValue !== null && entValue >= r.min && entValue <= r.max,
+      options: r.options.map((o) => ({ ...o, chosen: d.entanglement?.name === o.name }))
+    })),
+    sheetApplied: d.sheetApplied ?? null,
     deltas: [-3, -2, -1, 0, 1, 2, 3],
     statusRows: (d.status ?? []).map((r, i) => ({ ...r, i, deltaLabel: r.delta > 0 ? `+${r.delta}` : String(r.delta ?? 0),
       deltaOpts: [-3, -2, -1, 0, 1, 2, 3].map((v) => ({ v, label: v > 0 ? `+${v}` : String(v), selected: (r.delta ?? 0) === v })) })),

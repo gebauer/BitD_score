@@ -4,7 +4,7 @@ import { startWizard, rereadCrew, resetWizard, rollEngagement, setManualEngageme
 import { captureFocus, restoreFocus, bindInteractions } from "./ui-common.mjs";
 import { listPreps, getPrep, npcRoleLabel, importPreps } from "./prep.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
-import { startDebrief, debriefNav, factionOps, heatExtraOps, rollEntanglement, finishDebrief, finishedScores } from "./debrief.mjs";
+import { startDebrief, debriefNav, factionOps, heatExtraOps, setManualEntanglement, applyHeatToSheet, rollEntanglement, finishDebrief, finishedScores } from "./debrief.mjs";
 import { PLANS } from "./data.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -53,6 +53,8 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       dRollClear: () => setState((st) => { if (st.debrief) st.debrief.entanglement.rolled = []; }),
       dAddFaction: (ev, t) => factionOps.add(t.dataset.name ?? ""),
       dAddHeat: () => heatExtraOps.add(),
+      dEntManual: (ev, t) => setManualEntanglement(t.dataset.value),
+      dApplyHeat: () => applyHeatToSheet(),
       dRemoveHeat: (ev, t) => heatExtraOps.remove(t.dataset.index),
       dRemoveFaction: (ev, t) => factionOps.remove(t.dataset.index),
       dFinish: ScoreGMApp.#finishDebrief

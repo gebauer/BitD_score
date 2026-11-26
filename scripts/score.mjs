@@ -7,13 +7,8 @@ import { publicDebrief, debriefOverviewHTML } from "./debrief.mjs";
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const OWN = () => CONST.DOCUMENT_OWNERSHIP_LEVELS;
 
-/** "@UUID[…#page=N]{📖 S. x}" – Link ins Regelbuch-PDF (PDF Pager). */
-export function ruleLink(page) {
-  const uuid = game.settings.get(MOD, "rulebookUuid");
-  if (!uuid || !page) return "";
-  const offset = Number(game.settings.get(MOD, "rulebookOffset")) || 0;
-  return `@UUID[${uuid}#page=${page + offset}]{📖 S. ${page}}`;
-}
+import { ruleLink } from "./rulebook.mjs";
+export { ruleLink };
 
 /* ---------------- Wizard starten ---------------- */
 

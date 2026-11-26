@@ -6,7 +6,8 @@ import { getPrep, npcRoleLabel } from "./prep.mjs";
 
 /* ------------------------------------------------------------------
  * Debrief nach dem Score (Kap. 5, S. 145 ff.). Liest Werte von Actors
- * nur als Vorschlag – schreibt NIE auf Charakter- oder Crew-Bögen.
+ * als Vorschlag. Einzige Ausnahme beim Schreiben: Heat/Wanted auf den
+ * Crew-Bogen – nur auf Knopfdruck der SL mit Rückfrage.
  * ------------------------------------------------------------------ */
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -67,7 +68,7 @@ export async function startDebrief(entryId) {
 
   const meta = {
     entryId, no: data.no, name: data.name || "Ohne Namen", rerun: !!data.debrief,
-    crewActor: crewActor?.name ?? "",
+    crewActor: crewActor?.name ?? "", crewActorId: crewActor?.id ?? null,
     crewTrigger: clueText(crewActor?.items?.find((i) => i.type === "crew_type")?.system?.experience_clues),
     crew: (data.crew ?? []).map((c) => {
       const a = game.actors.get(c.id);
@@ -119,6 +120,58 @@ export async function rollEntanglement() {
   }, { rollMode: secret ? CONST.DICE_ROLL_MODES.PRIVATE : CONST.DICE_ROLL_MODES.PUBLIC });
   if (game.dice3d && msg) await game.dice3d.waitFor3DAnimationByMessageID(msg.id).catch(() => {});
   await setState((st) => { if (st.debrief) st.debrief.entanglement.rolled = dice; });
+}
+
+/** Ergebnis echter Würfel: der entscheidende Würfel (1–6). */
+export async function setManualEntanglement(value) {
+  const v = Math.max(1, Math.min(6, Number(value) || 0));
+  if (!v) return;
+  const s = getState();
+  if (!s.debrief) return;
+  const c = debriefCalc(s.debrief);
+  const secret = s.debrief.entanglement?.secret !== false;
+  await ChatMessage.create({
+    speaker: { alias: "Verstrickung" },
+    content: `<div class="bitd-score-chat"><b>Verstrickung</b> (echte Würfel) · ${esc(c.column)} → <b>${v}</b></div>`,
+    whisper: secret ? game.users.filter((u) => u.isGM).map((u) => u.id) : []
+  });
+  await setState((st) => { if (st.debrief) st.debrief.entanglement.rolled = [v]; });
+}
+
+/* ---------------- Heat auf den Crew-Bogen ---------------- */
+
+/**
+ * Schreibt Heat (nach Überlauf) und Wanted auf den Crew-Bogen – absolut, berechnet aus
+ * „Heat vorher“. Mehrfaches Klicken ist deshalb unschädlich.
+ */
+export async function applyHeatToSheet() {
+  const s = getState();
+  const d = s.debrief;
+  const crew = game.actors.get(s.debriefMeta?.crewActorId);
+  if (!d || !crew) return ui.notifications.warn("Score-Wizard: Kein Crew-Bogen gefunden (Charaktere mit einer Crew verknüpfen).");
+  const curHeat = sysNum(crew.system?.heat) ?? 0;
+  const curWanted = sysNum(crew.system?.wanted) ?? 0;
+  const calc = debriefCalc({ ...d, heatBefore: d.heatBefore ?? curHeat, wantedBefore: d.wantedBefore ?? curWanted });
+  const heat = Math.max(0, Math.min(9, calc.heatAfter));
+  const wanted = Math.max(0, Math.min(4, calc.wantedAfter ?? curWanted));
+  const prev = d.sheetApplied;
+  const changedMeanwhile = prev ? (curHeat !== prev.heat || curWanted !== prev.wanted) : (curHeat !== calc.heatBefore || curWanted !== calc.wantedBefore);
+  const ok = await foundry.applications.api.DialogV2.confirm({
+    window: { title: "Heat auf den Crew-Bogen" },
+    content: `<p><b>${esc(crew.name)}</b>: Heat ${curHeat} → <b>${heat}</b>, Wanted ${curWanted} → <b>${wanted}</b>${calc.overflow ? " (Überlauf)" : ""}.</p>
+      <p><i>Berechnet aus Heat vorher ${calc.heatBefore} + ${calc.heat}.</i></p>
+      ${prev ? `<p>Wurde schon einmal übertragen (Heat ${prev.heat}, Wanted ${prev.wanted}) – das wird ersetzt, nicht addiert.</p>` : ""}
+      ${changedMeanwhile ? `<p class="red"><b>Achtung:</b> Der Bogen wurde inzwischen geändert – dieser Wert überschreibt ihn.</p>` : ""}`
+  });
+  if (!ok) return;
+  await crew.update({ "system.heat": heat, "system.wanted": wanted });
+  await setState((st) => {
+    if (!st.debrief) return;
+    st.debrief.sheetApplied = { heat, wanted, at: Date.now() };
+    if (st.debrief.heatBefore === null) st.debrief.heatBefore = calc.heatBefore;
+    if (st.debrief.wantedBefore === null) st.debrief.wantedBefore = calc.wantedBefore;
+  });
+  ui.notifications.info(`${crew.name}: Heat ${heat}, Wanted ${wanted}.`);
 }
 
 /* ---------------- Abschließen ---------------- */

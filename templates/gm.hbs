@@ -272,7 +272,11 @@
       <label>Wanted vorher <input type="number" min="0" max="4" data-field="debrief.wantedBefore" value="{{debrief.wantedBefore}}" placeholder="?"></label>
     </div>
     <p class="bsg-sum">Heat <b>+{{calc.heat}}</b>{{#if calc.hasHeatAfter}} → danach <b>{{calc.heatAfter}}</b>{{/if}}{{#if calc.overflow}} · <b class="red">+1 Wanted Level, Überlauf zählt weiter (S. 148)</b>{{/if}}</p>
-    {{#if dmeta.crewActor}}<p class="bsg-tip">Vorbelegt aus dem Crew-Bogen „{{dmeta.crewActor}}“ – der Bogen selbst wird nicht verändert.</p>{{/if}}
+    {{#if dmeta.crewActor}}<p class="bsg-tip">Vorbelegt aus dem Crew-Bogen „{{dmeta.crewActor}}“.</p>{{/if}}
+    <div class="bsg-choices">
+      <button type="button" data-action="dApplyHeat" {{#unless dmeta.crewActorId}}disabled{{/unless}} data-tooltip="Schreibt Heat (nach Überlauf) und Wanted auf den Crew-Bogen – mit Rückfrage. Erneut klicken ersetzt, addiert nicht."><i class="fa-solid fa-file-pen"></i> Heat auf Crew-Bogen{{#if dmeta.crewActor}} „{{dmeta.crewActor}}“{{/if}} übertragen</button>
+      {{#if sheetApplied}}<span class="bsg-tip">✓ übertragen: Heat {{sheetApplied.heat}}, Wanted {{sheetApplied.wanted}}</span>{{/if}}
+    </div>
     {{/if}}
 
     {{#if dstep_verstrickung}}
@@ -286,6 +290,23 @@
       <button type="button" class="bsg-big" data-action="dRoll"><i class="fa-solid fa-dice"></i> Würfeln</button>
       {{/if}}
     </div>
+    {{#unless entDice.length}}
+    <div class="bsg-choices bsg-manual">
+      <span>Echte Würfel – {{#if calc.entZero}}niedrigster{{else}}höchster{{/if}} Würfel:</span>
+      <button type="button" data-action="dEntManual" data-value="1">1</button>
+      <button type="button" data-action="dEntManual" data-value="2">2</button>
+      <button type="button" data-action="dEntManual" data-value="3">3</button>
+      <button type="button" data-action="dEntManual" data-value="4">4</button>
+      <button type="button" data-action="dEntManual" data-value="5">5</button>
+      <button type="button" data-action="dEntManual" data-value="6">6</button>
+    </div>
+    {{/unless}}
+    <table class="bsg-ent">
+      <caption>{{calc.column}} <small>– Eintrag anklicken übernimmt den Namen</small></caption>
+      {{#each entTable}}
+      <tr class="{{#if hit}}hit{{/if}}"><th>{{range}}</th><td>{{#each options}}<button type="button" class="{{#if chosen}}selected{{/if}}" data-op="dset" data-path="debrief.entanglement.name" data-value="{{name}}" data-tooltip="{{desc}}"><b>{{name}}</b> <small>{{desc}}</small></button>{{/each}}</td></tr>
+      {{/each}}
+    </table>
     <label>Verstrickung <input type="text" data-field="debrief.entanglement.name" value="{{debrief.entanglement.name}}" placeholder="Name aus der Tabelle" autocomplete="off"></label>
     <textarea class="bsg-text" rows="3" data-field="debrief.entanglement.text" placeholder="Was passiert konkret?">{{debrief.entanglement.text}}</textarea>
     {{/if}}
@@ -336,9 +357,13 @@
       <li><b>Fraktionen:</b> {{#each statusPublic}}{{faction}} {{deltaLabel}}{{#unless @last}}, {{/unless}}{{else}}–{{/each}}</li>
       <li><b>XP:</b> {{#each pcs}}{{name}} {{total}}{{#unless @last}} · {{/unless}}{{/each}} · Crew {{crewXpTotal}}</li>
     </ul>
+    <div class="bsg-choices">
+      <button type="button" data-action="dApplyHeat" {{#unless dmeta.crewActorId}}disabled{{/unless}} data-tooltip="Schreibt Heat (nach Überlauf) und Wanted auf den Crew-Bogen – mit Rückfrage. Erneut klicken ersetzt, addiert nicht."><i class="fa-solid fa-file-pen"></i> Heat auf Crew-Bogen{{#if dmeta.crewActor}} „{{dmeta.crewActor}}“{{/if}} übertragen</button>
+      {{#if sheetApplied}}<span class="bsg-tip">✓ übertragen: Heat {{sheetApplied.heat}}, Wanted {{sheetApplied.wanted}}</span>{{/if}}
+    </div>
     <label class="stack">SL-Notizen <small>(geheim – nur auf der 🔒 SL-Seite: Nachspiel, Pläne der Fraktionen, offene Fäden)</small></label>
     <textarea class="bsg-text" rows="4" data-field="debrief.gmNotes">{{debrief.gmNotes}}</textarea>
-    <p class="bsg-tip">Charakter- und Crew-Bögen bitte von Hand aktualisieren – der Wizard schreibt nur ins Journal.</p>
+    <p class="bsg-tip">Coin, Rep, Status und XP bitte von Hand auf die Bögen übertragen – nur Heat/Wanted kann der Knopf oben eintragen.</p>
     {{/if}}
   </div>
 

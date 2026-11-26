@@ -7,6 +7,7 @@ import { openPrepEditor } from "./prep-app.mjs";
 import { listPreps, importPreps } from "./prep.mjs";
 import { guessCrewScene } from "./crew.mjs";
 import { startDebrief } from "./debrief.mjs";
+import { registerRulebookLinks } from "./rulebook.mjs";
 
 let table = null;
 
@@ -36,8 +37,14 @@ Hooks.once("init", () => {
     default: "JournalEntry.LaCpbCF0tRbOWxFG.JournalEntryPage.s3ygzsMAtS4CrEbi"
   });
   game.settings.register(MOD, "rulebookOffset", {
-    name: "Regelbuch: Seitenversatz", hint: "PDF-Seite = gedruckte Seite + Versatz.",
+    name: "Regelbuch: Seitenversatz", hint: "PDF-Seite = gedruckte Seite + Versatz. Den Versatz nur hier eintragen, nicht zusätzlich in PDF Pager.",
     scope: "world", config: true, type: Number, default: 8
+  });
+  game.settings.register(MOD, "rulebookOpen", {
+    name: "Regelbuch öffnen in",
+    hint: "Foundry: das Journal mit dem PDF, der Wizard springt auf die Seite. Browser-Tab: eingebauter PDF-Viewer des Browsers – funktioniert immer, liegt aber außerhalb von Foundry.",
+    scope: "client", config: true, type: String, default: "foundry",
+    choices: { foundry: "Foundry (Journal / PDF Pager)", tab: "Neuer Browser-Tab" }
   });
   game.settings.register(MOD, "skylineImage", {
     name: "Skyline-Bild",
@@ -112,6 +119,7 @@ function syncTable() {
 
 Hooks.once("ready", () => {
   registerSocket();
+  registerRulebookLinks();
   Hooks.on(`${MOD}.stateChanged`, () => { if (table) table.render(); });
   syncTable();
 
