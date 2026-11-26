@@ -141,6 +141,132 @@
   <footer class="bst-foot">Regelbuch S. {{step.page}}{{#unless isLast}} · als Nächstes: {{nextLabel}}{{/unless}} · die SL führt weiter</footer>
   {{/if}}
 
+  {{#if isDebrief}}
+  <nav class="bst-steps many" aria-label="Fortschritt">
+    {{#each dsteps}}
+    <div class="bst-step{{#if active}} active{{/if}}{{#if done}} done{{/if}}"><small>{{n}}</small>{{label}}</div>
+    {{/each}}
+  </nav>
+
+  <header class="bst-head">
+    <div class="bst-banner"><h1>{{dstep.title}}</h1></div>
+    <p>{{dstep.ask}}</p>
+  </header>
+
+  <main class="bst-main{{#if dstep_xp}} wide{{/if}}">
+    {{#if dstep_ergebnis}}
+    <div class="bst-grid3">
+      {{#each outcomes}}
+      <div class="bst-card{{#if selected}} selected{{/if}}">
+        <span class="bst-card-title">{{label}}</span><span class="bst-card-text">{{desc}}</span>
+        {{#if selected}}<span class="bst-stamp">So war's</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+    <label class="bst-field"><span class="bst-label">Was ist passiert?</span>
+      <textarea data-field="debrief.summary" rows="3" placeholder="In zwei, drei Sätzen …">{{debrief.summary}}</textarea></label>
+    {{#if dmeta.clocks.length}}
+    <div class="bst-dclocks">{{#each dmeta.clocks}}<div class="bst-clockbox{{#if full}} full{{/if}}"><div class="bss-clock{{#if threat}} threat{{/if}}" style="{{style}}"></div><span>{{name}} {{value}}/{{size}}</span></div>{{/each}}</div>
+    {{/if}}
+    {{/if}}
+
+    {{#if dstep_payoff}}
+    <div class="bst-bignums">
+      <div class="bst-paper bst-bignum"><span class="bst-label">Coin</span><b>{{calc.coin}}</b><span>{{#each coinSizes}}{{#if selected}}{{label}}{{/if}}{{/each}}</span></div>
+      <div class="bst-paper bst-bignum tilt-r"><span class="bst-label">Rep</span><b>{{calc.rep}}</b><span>{{#if debrief.quiet}}niemand weiß, dass ihr es wart{{else}}2 + Tier {{calc.targetTier}} − Tier {{calc.crewTier}}{{/if}}</span></div>
+      <div class="bst-paper bst-bignum"><span class="bst-label">An die Crew</span><b>{{calc.coinToCrew}}</b><span>{{#if calc.titheOn}}nach {{calc.tithe}} Tribut an {{debrief.tithe.boss}}{{else}}{{#if debrief.tithe.boss}}Tribut an {{debrief.tithe.boss}} nicht gezahlt{{else}}kein Tribut{{/if}}{{/if}}</span></div>
+    </div>
+    {{/if}}
+
+    {{#if dstep_heat}}
+    <div class="bst-grid4">
+      {{#each exposures}}
+      <div class="bst-card{{#if selected}} selected{{/if}}" style="--tilt:{{tilt}}deg"><span class="bst-card-title">{{value}}</span><span class="bst-card-text"><b>{{label}}</b><br>{{desc}}</span></div>
+      {{/each}}
+    </div>
+    <div class="bst-row">
+      {{#each heatMods}}<span class="bst-pill{{#if on}} selected{{/if}}">+{{value}} {{label}}</span>{{/each}}
+    </div>
+    <div class="bst-bignums">
+      <div class="bst-paper bst-bignum"><span class="bst-label">Heat</span><b class="red">+{{calc.heat}}</b></div>
+      {{#if calc.hasHeatAfter}}<div class="bst-paper bst-bignum tilt-r"><span class="bst-label">Danach</span><b>{{calc.heatAfter}}</b><span>{{#if calc.overflow}}+1 Wanted Level!{{else}}von 9{{/if}}</span></div>{{/if}}
+    </div>
+    {{/if}}
+
+    {{#if dstep_verstrickung}}
+    <section class="bst-paper bst-ent">
+      <div class="bst-pool"><span class="bst-label">{{calc.column}}</span><b>{{#if calc.entZero}}2W ↓{{else}}{{calc.entDice}}W{{/if}}</b></div>
+      {{#if entSecret}}
+      <div class="bst-wait">Die SL würfelt verdeckt …</div>
+      {{else}}
+      <div class="bst-dice">
+        {{#if entDice.length}}{{#each entDice}}<div class="bst-die{{#if hit}} hit{{/if}}">{{v}}</div>{{/each}}{{else}}<div class="bst-wait">Die SL würfelt …</div>{{/if}}
+      </div>
+      {{#if debrief.entanglement.name}}<span class="bst-card-title">{{debrief.entanglement.name}}</span>{{/if}}
+      {{#if debrief.entanglement.text}}<span class="bst-card-text">{{debrief.entanglement.text}}</span>{{/if}}
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if dstep_fraktionen}}
+    <div class="bst-paper bst-factions">
+      {{#each statusPublic}}
+      <div class="bst-faction"><b>{{faction}}</b><span class="bst-delta{{#if neg}} neg{{/if}}">{{deltaLabel}}</span><i>{{note}}</i></div>
+      {{else}}<span class="bst-note">Keine Änderungen.</span>{{/each}}
+    </div>
+    {{/if}}
+
+    {{#if dstep_xp}}
+    <div class="bst-xpcards" style="{{pcCardStyle}}">
+      {{#each pcs}}
+      <div class="bst-paper bst-xpcard" style="--tilt:{{tilt}}deg">
+        <div class="bst-xphead">{{#if cardImg}}<img src="{{cardImg}}" alt="">{{/if}}<b>{{name}}</b><span class="bst-xptotal">{{total}}</span></div>
+        <span class="bst-label">Verzweifelte Würfe</span>
+        {{#each attrs}}
+        <div class="bst-xprow"><span>{{label}}</span>
+          <button type="button" class="bst-xpbtn" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="-1" aria-label="{{label}} −1">−</button><b>{{value}}</b><button type="button" class="bst-xpbtn" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="1" aria-label="{{label}} +1">+</button></div>
+        {{/each}}
+        {{#each triggers}}
+        <div class="bst-xprow"><span title="{{label}}">{{short}}</span>
+          {{#each opts}}{{#if v}}<button type="button" class="bst-xpbtn{{#if on}} on{{/if}}" data-op="xp" data-actor="{{../../id}}" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/if}}{{/each}}</div>
+        {{/each}}
+      </div>
+      {{else}}<div class="bst-paper"><span class="bst-card-text">Keine Crew im Score gespeichert.</span></div>{{/each}}
+    </div>
+    <div class="bst-crewxp">
+      <span class="bst-label light">Crew-XP {{crewXpTotal}}</span>
+      {{#each crewXp}}<span class="bst-pill{{#if opts.[1].on}} selected{{/if}}">{{label}} <small>{{#if opts.[2].on}}2{{else}}{{#if opts.[1].on}}1{{else}}0{{/if}}{{/if}}</small></span>{{/each}}
+    </div>
+    {{/if}}
+
+    {{#if dstep_abschluss}}
+    <div class="bst-bignums">
+      <div class="bst-paper bst-bignum"><span class="bst-label">Ergebnis</span><b class="small{{#if failed}} red{{/if}}">{{#if outcome}}{{outcome.label}}{{else}}–{{/if}}</b></div>
+      <div class="bst-paper bst-bignum tilt-r"><span class="bst-label">Coin</span><b>{{calc.coinToCrew}}</b></div>
+      <div class="bst-paper bst-bignum"><span class="bst-label">Rep</span><b>{{calc.rep}}</b></div>
+      <div class="bst-paper bst-bignum tilt-r"><span class="bst-label">Heat</span><b class="red">+{{calc.heat}}</b></div>
+    </div>
+    <div class="bst-paper bst-factions">
+      <span class="bst-label">XP</span>
+      <div class="bst-faction">{{#each pcs}}<span>{{name}} <b>{{total}}</b></span>{{/each}}<span>Crew <b>{{crewXpTotal}}</b></span></div>
+    </div>
+    {{/if}}
+  </main>
+
+  {{#unless dstep_xp}}
+  <aside class="bst-summary">
+    <div class="bst-paper tilt-r">
+      <span class="bst-label">Score № {{dmeta.no}}</span>
+      <b class="bst-sum-name">{{dmeta.name}}</b>
+      {{#if outcome}}<span><i>Ergebnis:</i> {{outcome.label}}</span>{{/if}}
+      <span><i>Coin:</i> {{calc.coinToCrew}} · <i>Rep:</i> {{calc.rep}} · <i>Heat:</i> +{{calc.heat}}</span>
+    </div>
+  </aside>
+  {{/unless}}
+
+  <footer class="bst-foot">Regelbuch S. {{dstep.page}}{{#unless dIsLast}} · als Nächstes: {{dNextLabel}}{{/unless}} · die SL führt weiter</footer>
+  {{/if}}
+
   {{#if isScore}}
   {{#with scoreView}}
   <article class="bst-news">
@@ -156,12 +282,23 @@
       <span class="bst-label">Die Crew · Load</span>
       <ul>{{#each crew}}<li>{{#if cardImg}}<img class="bst-crewthumb" src="{{cardImg}}" alt="">{{/if}}{{name}} <span>· {{load}}</span></li>{{/each}}</ul>
     </div>
-    {{#if npcs.length}}
+    {{#if debrief}}
+    <div class="bst-news-crew">
+      <span class="bst-label">Payoff &amp; Konsequenzen</span>
+      <div class="bst-facts">
+        <div><small>Ergebnis</small><b class="{{#if debrief.failed}}red{{/if}}">{{debrief.outcome}}</b></div>
+        <div><small>Coin</small><b>{{debrief.coinToCrew}}</b>{{#if debrief.tithe}}<i>nach {{debrief.tithe}} Tribut</i>{{/if}}</div>
+        <div><small>Rep</small><b>{{debrief.rep}}</b></div>
+        <div><small>Heat</small><b class="red">+{{debrief.heat}}</b>{{#if debrief.heatMods}}<i>{{debrief.heatMods}}</i>{{/if}}</div>
+      </div>
+      {{#if debrief.summary}}<p class="bst-news-summary">{{debrief.summary}}</p>{{/if}}
+    </div>
+    {{else}}{{#if npcs.length}}
     <div class="bst-news-crew">
       <span class="bst-label">Beteiligte</span>
       <ul>{{#each npcs}}<li>{{name}} <span>· {{role}}</span></li>{{/each}}</ul>
     </div>
-    {{/if}}
+    {{/if}}{{/if}}
   </article>
   <aside class="bst-clocks bst-paper tilt-r {{clockClass}}">
     <h2>Uhren</h2>

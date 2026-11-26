@@ -2,7 +2,7 @@
   "id": "bitd-score",
   "title": "BitD Score-Wizard",
   "description": "Geführter Score-Ablauf für Blades in the Dark – parallel zum Regelbuch (Kap. 4), mit Tisch-Ansicht für den Beamer, Engagement Roll und Score-Uhren.",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "authors": [{ "name": "Jan Gebauer" }],
   "compatibility": { "minimum": "13", "verified": "14" },
   "relationships": {

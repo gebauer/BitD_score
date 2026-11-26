@@ -78,3 +78,78 @@ export const POSITIONS = [
 export const CLOCK_SIZES = [4, 6, 8];
 
 export const byId = (list, id) => list.find((x) => x.id === id) ?? null;
+
+/* ------------------------------------------------------------------
+ * Debrief (Kap. 5 „Downtime“, S. 145 ff.; Aufstieg S. 48–49)
+ * ------------------------------------------------------------------ */
+
+export const DEBRIEF_STEPS = [
+  { id: "ergebnis", label: "Ergebnis", page: 145, title: "Das Ergebnis",
+    ask: "Wie ist es ausgegangen?",
+    hint: "Kurz festhalten, was passiert ist (2–5 Sätze, öffentlich). Bei einem Fehlschlag gibt es meist keinen Payoff – Heat und Verstrickungen gibt es trotzdem." },
+  { id: "payoff", label: "Payoff", page: 146, title: "Der Payoff",
+    ask: "Was springt dabei heraus?",
+    hint: "Rep: 2, +1 je Tier, den das Ziel über der Crew steht, −1 je Tier darunter (min. 0). Niemand weiß, dass es die Crew war → 0 Rep. Coin nach Größe des Jobs; davon geht ggf. der Tribut an den Boss ab." },
+  { id: "heat", label: "Heat", page: 147, title: "Die Heat",
+    ask: "Wie viel Staub habt ihr aufgewirbelt?",
+    hint: "Heat nach Aufsehen (0/2/4/6), dazu +1 hochrangiges Ziel, +1 feindliches Revier, +1 im Krieg, +2 Leichen. Ab 9 Heat: +1 Wanted Level, der Rest läuft über (S. 148)." },
+  { id: "verstrickung", label: "Verstrickung", page: 150, title: "Verstrickungen",
+    ask: "Was holt euch jetzt ein?",
+    hint: "Würfel = Wanted Level (0 → 2 Würfel, der niedrigste zählt). Die Spalte richtet sich nach der Heat der Crew. Ergebnis in der Tabelle im Regelbuch nachschlagen." },
+  { id: "fraktionen", label: "Fraktionen", page: 145, title: "Die Fraktionen",
+    ask: "Wer ist euch jetzt wohlgesonnen – und wer nicht?",
+    hint: "Status-Änderungen nur notieren, die Fraktionsbögen pflegt ihr von Hand. Typisch: −1 bei der Fraktion, der ihr geschadet habt, +1 beim Auftraggeber." },
+  { id: "xp", label: "XP", page: 48, title: "Erfahrung",
+    ask: "Was habt ihr dabei gelernt?",
+    hint: "Verzweifelte Würfe geben XP im Attribut des Wurfs. Die Auslöser (Playbook, Überzeugungen, Laster) vergibt das Buch am Ende der Sitzung – wir notieren sie pro Score. Crew-XP S. 49." },
+  { id: "abschluss", label: "Abschluss", page: 145, title: "Abschluss",
+    ask: "Alles notiert?",
+    hint: "„Score abschließen“ schreibt alles in den Journal-Eintrag. Charakter- und Crew-Bögen werden NICHT verändert – Werte bitte von Hand übertragen." }
+];
+
+export const OUTCOMES = [
+  { id: "success", label: "Erfolg", desc: "Das Ziel ist erreicht." },
+  { id: "partial", label: "Teilerfolg", desc: "Erreicht – aber nicht ganz oder zu einem Preis." },
+  { id: "failed", label: "Fehlschlag", desc: "Das Ziel ist verfehlt." }
+];
+
+/** Coin-Größen (S. 146) – kurze deutsche Bezeichnungen. */
+export const COIN_SIZES = [
+  { value: 2, label: "Kleiner Job", desc: "Ein paar Münzen" },
+  { value: 4, label: "Standard-Score", desc: "Ordentliche Beute" },
+  { value: 6, label: "Großer Score", desc: "Ein dicker Fang" },
+  { value: 8, label: "Riesiger Score", desc: "Stoff für Legenden" },
+  { value: 10, label: "10+", desc: "Eine Fürstenkasse" }
+];
+
+export const EXPOSURE = [
+  { value: 0, label: "Leise", desc: "Glatt und unauffällig" },
+  { value: 2, label: "Eingedämmt", desc: "Ein paar Zeugen, im Griff" },
+  { value: 4, label: "Laut", desc: "Laut und chaotisch" },
+  { value: 6, label: "Wild", desc: "Ein öffentliches Spektakel" }
+];
+
+export const HEAT_MODS = [
+  { id: "highProfile", label: "Hochrangiges Ziel", value: 1 },
+  { id: "hostileTurf", label: "Feindliches Revier", value: 1 },
+  { id: "war", label: "Im Krieg", value: 1 },
+  { id: "killing", label: "Leichen", value: 2 }
+];
+
+/** PC-XP: verzweifelte Würfe je Attribut (Zähler) und Auslöser (0/1/2). */
+export const XP_ATTRS = [
+  { id: "insight", label: "Einsicht" },
+  { id: "prowess", label: "Geschick" },
+  { id: "resolve", label: "Entschlossenheit" }
+];
+export const XP_TRIGGERS = [
+  { id: "playbook", label: "Playbook-Auslöser" },
+  { id: "beliefs", label: "Überzeugungen, Antrieb, Herkunft, Hintergrund" },
+  { id: "vice", label: "Laster oder Trauma ausgelebt" }
+];
+export const CREW_XP = [
+  { id: "crewTrigger", label: "Crew-Auslöser" },
+  { id: "aboveStation", label: "Herausforderungen über eurem Stand" },
+  { id: "reputation", label: "Ruf gestärkt oder ausgebaut" },
+  { id: "nature", label: "Ziele, Antrieb oder Wesen der Crew gezeigt" }
+];

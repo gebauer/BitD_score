@@ -45,6 +45,18 @@ wer mitspielt, liegt als Karte **offen in einem Dock**; umgedrehte Karten oder K
 - **Pause** gibt den Beamer frei (Karte), die Planung bleibt erhalten → „Planung fortsetzen“.
 - Am Beamer: Knopf **Zur Karte** blendet das Overlay lokal aus, **Score** holt es zurück.
 
+## Debrief („Score beenden“)
+
+Nach dem Score führt der Debrief-Wizard in der Reihenfolge des Regelbuchs (Kap. 5, S. 145 ff.; XP S. 48–49) durch:
+**Ergebnis → Payoff → Heat → Verstrickung → Fraktionen → XP → Abschluss**. Der Beamer folgt Schritt für Schritt.
+
+- Starten: SL-Fenster → **Score beenden** (Score-Ansicht oder Liste „Laufende Scores“). Abgeschlossene Scores: **Debrief bearbeiten** – öffnet mit den gespeicherten Werten und überschreibt sie beim Abschließen.
+- **Nur Vorschläge, keine Bögen:** Rep (`2 + Tier Ziel − Tier Crew`, leise = 0), Tribut (`Tier + 1`), Heat (Aufsehen + Zuschläge) werden vorgeschlagen und können überschrieben werden. Tier, Heat und Wanted werden aus dem Crew-Bogen *gelesen*. Charakter- und Crew-Bögen ändert das Modul nie – Coin, Rep, Heat, Status und XP bitte von Hand übertragen.
+- **Verstrickung:** Spalte nach Heat, Würfel = Wanted Level (0 → 2 Würfel, niedrigster). Die Tabelle steht im Regelbuch (📖-Link), Name und Beschreibung trägt die SL ein. „geheim“ = Wurf nur an die SL, nichts am Beamer und nicht auf der Überblick-Seite.
+- **XP:** Spieler klicken ihre XP am Beamer selbst an (verzweifelte Würfe je Attribut, Auslöser 0/1/2); Crew-XP setzt die SL. Das Buch vergibt Auslöser-XP am Ende der *Sitzung* – hier wird pro Score notiert.
+- **Score abschließen:** Ergebnis in die Flags (`flags.bitd-score.score.debrief`), Eintrag wird zu `NN · Name ✓`, die Überblick-Seite bekommt „Payoff & Konsequenzen“, die 🔒 SL-Seite die Verstrickung und SL-Notizen (der Abschnitt „🔒 Debrief“ wird bei erneutem Abschließen ersetzt – eigene Notizen bitte darüber schreiben).
+- Makro: `game.modules.get("bitd-score").api.debrief(journalEntryId)`.
+
 ## Scores vorbereiten
 
 SL-Fenster → **Neuen Score vorbereiten** (oder `game.modules.get("bitd-score").api.prepare()`).

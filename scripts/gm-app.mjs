@@ -4,6 +4,7 @@ import { startWizard, rereadCrew, resetWizard, rollEngagement, drawObstacles, be
 import { captureFocus, restoreFocus, bindInteractions } from "./ui-common.mjs";
 import { listPreps, getPrep, npcRoleLabel, importPreps } from "./prep.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
+import { startDebrief, debriefNav, factionOps, rollEntanglement, finishDebrief, finishedScores } from "./debrief.mjs";
 import { PLANS } from "./data.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -40,7 +41,18 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       newPrep: () => openPrepEditor(null),
       importPrep: ScoreGMApp.#importPrep,
       editPrep: (ev, t) => openPrepEditor(t.dataset.prep),
-      unlinkPrep: () => setState((st) => { st.prepId = null; })
+      unlinkPrep: () => setState((st) => { st.prepId = null; }),
+      debrief: (ev, t) => startDebrief(t.dataset.entry ?? getState().scoreId),
+      dNext: () => debriefNav.next(),
+      dPrev: () => debriefNav.prev(),
+      dGoto: (ev, t) => debriefNav.goto(t.dataset.step),
+      dPause: () => debriefNav.pause(),
+      dDiscard: ScoreGMApp.#discardDebrief,
+      dRoll: () => rollEntanglement(),
+      dRollClear: () => setState((st) => { if (st.debrief) st.debrief.entanglement.rolled = []; }),
+      dAddFaction: (ev, t) => factionOps.add(t.dataset.name ?? ""),
+      dRemoveFaction: (ev, t) => factionOps.remove(t.dataset.index),
+      dFinish: ScoreGMApp.#finishDebrief
     }
   };
 
@@ -52,10 +64,20 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
     ctx.gm = true;
     ctx.running = runningScores();
     ctx.clockSizes = CLOCK_SIZES;
-    ctx.ruleHTML = await TE().enrichHTML(ruleLink(ctx.step.page));
+    ctx.ruleHTML = await TE().enrichHTML(ruleLink(ctx.isDebrief ? ctx.dstep.page : ctx.step.page));
+    ctx.finished = finishedScores();
+    if (ctx.isDebrief) {
+      ctx.dExtraHTML = await TE().enrichHTML(
+        ctx.dstep_xp ? ruleLink(49) + " Crew-XP"
+        : ctx.dstep_heat ? ruleLink(148) + " Wanted Level"
+        : ctx.dstep_payoff ? ruleLink(146) + " Tribut" : "");
+      ctx.debriefDraftHere = true;
+    }
+    ctx.hasDebriefDraft = !!s.debrief && s.debriefMeta?.entryId === s.scoreId;
     ctx.gatherHTML = await TE().enrichHTML(ruleLink(36));
     ctx.loadRuleHTML = await TE().enrichHTML(ruleLink(57));
     const entry = s.scoreId ? game.journal.get(s.scoreId) : null;
+    ctx.scoreDone = entry?.getFlag(MOD, "score")?.phase === "done";
     ctx.rawClocks = (entry?.getFlag(MOD, "clocks") ?? []).map((c) => ({ ...c, label: `${c.value}/${c.size}`, style: clockStyle(c) }));
     ctx.preps = listPreps();
     ctx.allPreps = listPreps({ includeUsed: true });
@@ -133,6 +155,22 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ok: { label: "Importieren", callback: (event, button) => button.form.elements.json.value }
     }).catch(() => null);
     if (text?.trim()) await importPreps(text);
+  }
+
+  static async #discardDebrief() {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: "Debrief verwerfen" },
+      content: "<p>Alle Eingaben dieses Debriefs verwerfen? Ein bereits abgeschlossener Debrief im Journal bleibt erhalten.</p>"
+    });
+    if (ok) await debriefNav.discard();
+  }
+
+  static async #finishDebrief() {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: "Score abschließen" },
+      content: "<p>Debrief in den Journal-Eintrag schreiben und den Score als abgeschlossen markieren?</p><p><i>Charakter- und Crew-Bögen werden nicht verändert.</i></p>"
+    });
+    if (ok) await finishDebrief();
   }
 
   static async #clockAdd(ev, target) {

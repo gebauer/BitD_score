@@ -8,14 +8,22 @@
     <span>Modus: <b>{{#if isWizard}}Wizard{{else}}{{#if isScore}}Score{{else}}Karte{{/if}}{{/if}}</b></span>
   </div>
 
-  {{#unless isWizard}}{{#unless isScore}}
+  {{#unless isWizard}}{{#unless isScore}}{{#unless isDebrief}}
   <section class="bsg-start">
     <button type="button" class="bsg-big" data-action="start"><i class="fa-solid fa-play"></i> Neuen Score planen</button>
     {{#if hasDraft}}<button type="button" data-action="resume"><i class="fa-solid fa-rotate-right"></i> Planung fortsetzen</button>{{/if}}
     {{#if running.length}}
     <h3>Laufende Scores</h3>
     <ul class="bsg-list">
-      {{#each running}}<li><span>{{name}}</span><button type="button" data-action="show" data-entry="{{id}}"><i class="fa-solid fa-display"></i> Am Beamer zeigen</button></li>{{/each}}
+      {{#each running}}<li><span>{{name}}</span><span><button type="button" data-action="show" data-entry="{{id}}"><i class="fa-solid fa-display"></i> Am Beamer zeigen</button>
+        <button type="button" data-action="debrief" data-entry="{{id}}"><i class="fa-solid fa-flag-checkered"></i> Score beenden</button></span></li>{{/each}}
+    </ul>
+    {{/if}}
+    {{#if finished.length}}
+    <h3>Abgeschlossene Scores</h3>
+    <ul class="bsg-list">
+      {{#each finished}}<li><span>{{name}}</span><span><button type="button" data-action="show" data-entry="{{id}}"><i class="fa-solid fa-display"></i> Am Beamer zeigen</button>
+        <button type="button" data-action="debrief" data-entry="{{id}}"><i class="fa-solid fa-pen"></i> Debrief bearbeiten</button></span></li>{{/each}}
     </ul>
     {{/if}}
     <h3>Vorbereitete Scores</h3>
@@ -28,7 +36,7 @@
       <button type="button" data-action="importPrep"><i class="fa-solid fa-file-import"></i> Importieren (JSON)</button>
     </div>
   </section>
-  {{/unless}}{{/unless}}
+  {{/unless}}{{/unless}}{{/unless}}
 
   {{#if isWizard}}
   <nav class="bsg-steps">
@@ -175,7 +183,153 @@
   <footer class="bsg-nav">
     <button type="button" data-action="openJournal"><i class="fa-solid fa-book-open"></i> Journal</button>
     <button type="button" data-action="release"><i class="fa-solid fa-map"></i> Beamer: Karte</button>
+    <button type="button" data-action="debrief"><i class="fa-solid {{#if scoreDone}}fa-pen{{else}}fa-flag-checkered{{/if}}"></i> {{#if hasDebriefDraft}}Debrief fortsetzen{{else}}{{#if scoreDone}}Debrief bearbeiten{{else}}Score beenden{{/if}}{{/if}}</button>
     <button type="button" class="bsg-big" data-action="start"><i class="fa-solid fa-play"></i> Nächsten Score planen</button>
+  </footer>
+  {{/if}}
+
+  {{#if isDebrief}}
+  <nav class="bsg-steps">
+    {{#each dsteps}}
+    <button type="button" class="{{#if active}}active{{/if}}{{#if done}} done{{/if}}" data-action="dGoto" data-step="{{index}}">{{n}} {{label}}</button>
+    {{/each}}
+  </nav>
+
+  <div class="bsg-hint">
+    <div class="bsg-hint-head"><b>Debrief № {{dmeta.no}} · {{dmeta.name}}{{#if dmeta.rerun}} <small>(bearbeiten)</small>{{/if}}</b> <span class="bsg-rule">{{{ruleHTML}}} {{{dExtraHTML}}}</span></div>
+    <p><b>{{dstep.title}}:</b> {{dstep.hint}}</p>
+  </div>
+
+  <div class="bsg-body">
+    {{#if dstep_ergebnis}}
+    <div class="bsg-choices">
+      {{#each outcomes}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="dset" data-path="debrief.outcome" data-value="{{id}}" data-toggle="1" data-tooltip="{{desc}}">{{label}}</button>{{/each}}
+    </div>
+    {{#if failed}}<p class="bsg-tip">Fehlschlag: Payoff meist 0 – Heat und Verstrickungen gibt es trotzdem.</p>{{/if}}
+    <label class="stack">Was ist passiert? <small>(öffentlich, 2–5 Sätze – Spieler können am Beamer mitschreiben)</small></label>
+    <textarea class="bsg-text" rows="4" data-field="debrief.summary">{{debrief.summary}}</textarea>
+    {{#if dmeta.clocks.length}}
+    <div class="bsg-dclocks">{{#each dmeta.clocks}}<span><span class="bss-clock{{#if threat}} threat{{/if}}" style="{{style}}"></span> {{name}} {{value}}/{{size}}</span>{{/each}}</div>
+    {{/if}}
+    {{/if}}
+
+    {{#if dstep_payoff}}
+    <div class="bsg-grid2">
+      <label>Tier Crew <input type="number" min="0" max="6" data-field="debrief.crewTier" value="{{debrief.crewTier}}"></label>
+      <label>Tier Ziel <input type="number" min="0" max="6" data-field="debrief.targetTier" value="{{debrief.targetTier}}"></label>
+    </div>
+    <div class="bsg-choices">
+      <button type="button" class="{{#if debrief.quiet}}on{{/if}}" data-op="dtoggle" data-path="debrief.quiet">Niemand weiß, dass es die Crew war (0 Rep)</button>
+    </div>
+    <label>Rep <input type="number" min="0" data-field="debrief.rep" value="{{debrief.rep}}" placeholder="{{calc.repSuggest}}">
+      <small>Vorschlag: {{#if debrief.quiet}}0 (leise){{else}}max(0, 2 + {{calc.targetTier}} − {{calc.crewTier}}) = {{calc.repSuggest}}{{/if}}</small></label>
+    <div class="bsg-choices wrap">
+      {{#each coinSizes}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="dset" data-path="debrief.coin" data-value="{{value}}" data-tooltip="{{desc}}">{{coinLabel}}</button>{{/each}}
+    </div>
+    <label>Coin <input type="number" min="0" data-field="debrief.coin" value="{{debrief.coin}}"></label>
+    <div class="bsg-grid2">
+      <label>Tribut an <input type="text" data-field="debrief.tithe.boss" value="{{debrief.tithe.boss}}" placeholder="Boss (leer = kein Tribut)" autocomplete="off"></label>
+      <div class="bsg-choices">
+        <button type="button" class="{{#if debrief.tithe.paid}}on{{/if}}" data-op="dtoggle" data-path="debrief.tithe.paid">{{#if debrief.tithe.paid}}gezahlt{{else}}nicht gezahlt{{/if}}</button>
+        {{#if debrief.tithe.paid}}<input type="number" min="0" data-field="debrief.tithe.amount" value="{{debrief.tithe.amount}}" placeholder="{{calc.titheSuggest}}" data-tooltip="Vorschlag: Crew-Tier + 1">{{/if}}
+      </div>
+    </div>
+    {{#if debrief.tithe.boss}}{{#unless debrief.tithe.paid}}<p class="bsg-tip">Nicht gezahlt: Geduld-Uhr für {{debrief.tithe.boss}} anlegen oder weiterdrehen (wird nur notiert).</p>{{/unless}}{{/if}}
+    <p class="bsg-sum">Coin {{calc.coin}} − Tribut {{calc.tithe}} = <b>{{calc.coinToCrew}}</b> für die Crew · Rep <b>{{calc.rep}}</b></p>
+    {{/if}}
+
+    {{#if dstep_heat}}
+    <div class="bsg-choices">
+      {{#each exposures}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="dset" data-path="debrief.exposure" data-value="{{value}}" data-tooltip="{{desc}}">{{value}} · {{label}}</button>{{/each}}
+    </div>
+    <div class="bsg-choices wrap">
+      {{#each heatMods}}<button type="button" class="{{#if on}}on{{/if}}" data-op="dtoggle" data-path="debrief.heatMods.{{id}}">+{{value}} {{label}}</button>{{/each}}
+    </div>
+    <label>Heat <input type="number" min="0" data-field="debrief.heat" value="{{debrief.heat}}" placeholder="{{calc.heatSuggest}}"><small>Vorschlag: {{calc.heatSuggest}}</small></label>
+    <div class="bsg-grid2">
+      <label>Heat vorher <input type="number" min="0" max="9" data-field="debrief.heatBefore" value="{{debrief.heatBefore}}" placeholder="?"></label>
+      <label>Wanted vorher <input type="number" min="0" max="4" data-field="debrief.wantedBefore" value="{{debrief.wantedBefore}}" placeholder="?"></label>
+    </div>
+    <p class="bsg-sum">Heat <b>+{{calc.heat}}</b>{{#if calc.hasHeatAfter}} → danach <b>{{calc.heatAfter}}</b>{{/if}}{{#if calc.overflow}} · <b class="red">+1 Wanted Level, Überlauf zählt weiter (S. 148)</b>{{/if}}</p>
+    {{#if dmeta.crewActor}}<p class="bsg-tip">Vorbelegt aus dem Crew-Bogen „{{dmeta.crewActor}}“ – der Bogen selbst wird nicht verändert.</p>{{/if}}
+    {{/if}}
+
+    {{#if dstep_verstrickung}}
+    <p class="bsg-sum">Spalte <b>{{calc.column}}</b> · {{#if calc.entZero}}Wanted 0: 2 Würfel, der niedrigste zählt{{else}}{{calc.entDice}} Würfel (Wanted {{calc.wantedAfter}}), der höchste zählt{{/if}}{{#unless calc.entKnown}} <i>(Wanted unbekannt – im Heat-Schritt eintragen)</i>{{/unless}}</p>
+    <div class="bsg-rollrow">
+      <button type="button" class="{{#if entSecret}}on{{/if}}" data-op="dtoggle" data-path="debrief.entanglement.secret" data-tooltip="Geheim: Wurf nur an die SL, nichts am Beamer, nicht auf der Überblick-Seite">{{#if entSecret}}<i class="fa-solid fa-eye-slash"></i> geheim{{else}}<i class="fa-solid fa-eye"></i> öffentlich{{/if}}</button>
+      {{#if entDice.length}}
+      <span class="bsg-result">{{#each entDice}}<b class="{{#if hit}}hit{{/if}}">{{v}}</b>{{/each}} → <b class="red">{{entValue}}</b></span>
+      <button type="button" data-action="dRollClear" data-tooltip="Wurf verwerfen"><i class="fa-solid fa-xmark"></i></button>
+      {{else}}
+      <button type="button" class="bsg-big" data-action="dRoll"><i class="fa-solid fa-dice"></i> Würfeln</button>
+      {{/if}}
+    </div>
+    <label>Verstrickung <input type="text" data-field="debrief.entanglement.name" value="{{debrief.entanglement.name}}" placeholder="Name aus der Tabelle" autocomplete="off"></label>
+    <textarea class="bsg-text" rows="3" data-field="debrief.entanglement.text" placeholder="Was passiert konkret?">{{debrief.entanglement.text}}</textarea>
+    {{/if}}
+
+    {{#if dstep_fraktionen}}
+    {{#each statusRows}}
+    <div class="bsg-status-row">
+      <input type="text" data-field="debrief.status.{{i}}.faction" value="{{faction}}" placeholder="Fraktion" autocomplete="off">
+      <select data-field="debrief.status.{{i}}.delta">{{#each deltaOpts}}<option value="{{v}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <input type="text" data-field="debrief.status.{{i}}.note" value="{{note}}" placeholder="Notiz" autocomplete="off">
+      <button type="button" data-action="dRemoveFaction" data-index="{{i}}" data-tooltip="Zeile löschen"><i class="fa-solid fa-trash"></i></button>
+    </div>
+    {{else}}<p class="bsg-tip">Noch keine Status-Änderungen.</p>{{/each}}
+    <div class="bsg-choices wrap">
+      <button type="button" data-action="dAddFaction"><i class="fa-solid fa-plus"></i> Fraktion</button>
+      {{#each factionSuggest}}<button type="button" data-action="dAddFaction" data-name="{{name}}" data-tooltip="Vorschlag ({{hint}})"><i class="fa-solid fa-plus"></i> {{name}} <small>({{hint}})</small></button>{{/each}}
+    </div>
+    {{/if}}
+
+    {{#if dstep_xp}}
+    <table class="bsg-xp">
+      <thead><tr><th></th>{{#each pcs.[0].attrs}}<th>{{label}}</th>{{/each}}<th>Playbook</th><th>Überzeug.</th><th>Laster</th><th>Σ</th></tr></thead>
+      <tbody>
+      {{#each pcs}}
+      <tr>
+        <th>{{#if cardImg}}<img class="bsg-crewimg" src="{{cardImg}}" alt="">{{/if}}{{name}}</th>
+        {{#each attrs}}<td class="bsg-counter"><button type="button" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="-1">−</button><b>{{value}}</b><button type="button" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="1">+</button></td>{{/each}}
+        {{#each triggers}}<td class="bsg-tri" data-tooltip="{{label}}">{{#each opts}}{{#if v}}<button type="button" class="{{#if on}}on{{/if}}" data-op="xp" data-actor="{{../../id}}" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/if}}{{/each}}</td>{{/each}}
+        <td><b>{{total}}</b></td>
+      </tr>
+      {{else}}<tr><td>Keine Crew im Score gespeichert.</td></tr>{{/each}}
+      </tbody>
+    </table>
+    {{#each pcs}}{{#if trigger}}<p class="bsg-tip"><b>{{name}}:</b> {{trigger}}</p>{{/if}}{{/each}}
+    <h3 class="bsg-sub">Crew-XP <small>Σ {{crewXpTotal}}</small></h3>
+    {{#each crewXp}}
+    <div class="bsg-xprow"><span>{{label}}</span><span class="bsg-tri">{{#each opts}}{{#if v}}<button type="button" class="{{#if on}}on{{/if}}" data-op="crewxp" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/if}}{{/each}}</span></div>
+    {{/each}}
+    <p class="bsg-tip">Spieler können ihre XP am Beamer anklicken. Nochmal klicken = eins weniger.</p>
+    {{/if}}
+
+    {{#if dstep_abschluss}}
+    <ul class="bsg-summary">
+      <li><b>Ergebnis:</b> {{#if outcome}}{{outcome.label}}{{else}}<i>nicht gewählt</i>{{/if}}</li>
+      <li><b>Payoff:</b> Coin {{calc.coin}}{{#if calc.titheOn}} − Tribut {{calc.tithe}} ({{debrief.tithe.boss}}){{/if}} = {{calc.coinToCrew}} · Rep {{calc.rep}}</li>
+      <li><b>Heat:</b> {{calc.heat}}{{#if heatModsText}} ({{heatModsText}}){{/if}}{{#if calc.hasHeatAfter}} → {{calc.heatAfter}}{{/if}}{{#if calc.overflow}} · +1 Wanted{{/if}}</li>
+      <li><b>Verstrickung{{#if entSecret}} (geheim){{/if}}:</b> {{#if debrief.entanglement.name}}{{debrief.entanglement.name}}{{else}}–{{/if}}{{#if entValue}} · Wurf {{entValue}}{{/if}}</li>
+      <li><b>Fraktionen:</b> {{#each statusPublic}}{{faction}} {{deltaLabel}}{{#unless @last}}, {{/unless}}{{else}}–{{/each}}</li>
+      <li><b>XP:</b> {{#each pcs}}{{name}} {{total}}{{#unless @last}} · {{/unless}}{{/each}} · Crew {{crewXpTotal}}</li>
+    </ul>
+    <label class="stack">SL-Notizen <small>(geheim – nur auf der 🔒 SL-Seite: Nachspiel, Pläne der Fraktionen, offene Fäden)</small></label>
+    <textarea class="bsg-text" rows="4" data-field="debrief.gmNotes">{{debrief.gmNotes}}</textarea>
+    <p class="bsg-tip">Charakter- und Crew-Bögen bitte von Hand aktualisieren – der Wizard schreibt nur ins Journal.</p>
+    {{/if}}
+  </div>
+
+  <footer class="bsg-nav">
+    <button type="button" data-action="dPrev" {{#if dIsFirst}}disabled{{/if}}><i class="fa-solid fa-arrow-left"></i> Zurück</button>
+    <button type="button" data-action="dPause" data-tooltip="Zurück zur Score-Ansicht; der Debrief bleibt erhalten"><i class="fa-solid fa-pause"></i> Pause</button>
+    <button type="button" data-action="dDiscard"><i class="fa-solid fa-trash"></i> Verwerfen</button>
+    {{#if dIsLast}}
+    <button type="button" class="bsg-big" data-action="dFinish"><i class="fa-solid fa-flag-checkered"></i> Score abschließen</button>
+    {{else}}
+    <button type="button" class="bsg-big" data-action="dNext">Weiter: {{dNextLabel}} <i class="fa-solid fa-arrow-right"></i></button>
+    {{/if}}
   </footer>
   {{/if}}
 </div>

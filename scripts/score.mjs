@@ -2,6 +2,7 @@ import { MOD, KINDS, SOURCES, PLANS, LOADS, POSITIONS, CLOCK_SIZES, byId } from 
 import { getState, setState, poolOf, evaluateDice, clockStyle } from "./state.mjs";
 import { getPrep, markUsed, prepForGMPage, npcRoleLabel, npcLink } from "./prep.mjs";
 import { readCrew } from "./crew.mjs";
+import { publicDebrief, debriefOverviewHTML } from "./debrief.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const OWN = () => CONST.DOCUMENT_OWNERSHIP_LEVELS;
@@ -114,7 +115,8 @@ export function snapshotFrom(data, clocks = []) {
     phase: data.phase ?? "running",
     created: data.created,
     npcs: data.npcs ?? [],
-    clocks: clocks.filter((c) => !c.hidden)
+    clocks: clocks.filter((c) => !c.hidden),
+    debrief: data.debrief ? publicDebrief(data.debrief, data.crew) : null
   };
 }
 
@@ -196,7 +198,7 @@ export const clockOps = {
 
 /* ---------------- Überblick-Seite (Zeitungsbogen) ---------------- */
 
-async function renderOverview(entry, snap) {
+export async function renderOverview(entry, snap) {
   const page = entry.pages.find((p) => p.getFlag(MOD, "role") === "overview");
   if (page) await page.update({ "text.content": overviewHTML(snap) });
 }
@@ -216,6 +218,7 @@ export function overviewHTML(sc) {
 </div>
 ${clocks ? `<h2>Uhren</h2><div class="bss-clocks">${clocks}</div>` : ""}
 ${crew ? `<h2>Die Crew · Load</h2><ul class="bss-crew">${crew}</ul>` : ""}
+${debriefOverviewHTML(sc.debrief)}
 ${sc.npcs?.length ? `<h2>Beteiligte</h2><ul class="bss-crew">${sc.npcs.map((n) => `<li>${npcLink(n)} <span>· ${esc(n.role)}</span></li>`).join("")}</ul>` : ""}
 <p class="bss-rules">${ruleLink(127)} Plan &amp; Loadout · ${ruleLink(128)} Engagement · ${ruleLink(15)} Uhren</p>
 <p class="bss-auto">Diese Seite wird vom Score-Wizard erzeugt – Notizen gehören auf „Notizen“.</p>

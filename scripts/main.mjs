@@ -6,6 +6,7 @@ import { startWizard, showScore, runningScores } from "./score.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
 import { listPreps, importPreps } from "./prep.mjs";
 import { guessCrewScene } from "./crew.mjs";
+import { startDebrief } from "./debrief.mjs";
 
 let table = null;
 
@@ -122,6 +123,7 @@ Hooks.once("ready", () => {
     prepare: openPrepEditor,
     preps: listPreps,
     importPreps,
+    debrief: async (entryId) => { await startDebrief(entryId ?? getState().scoreId); return openGMApp(); },
     state: getState
   };
 });

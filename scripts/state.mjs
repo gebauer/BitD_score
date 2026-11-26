@@ -1,4 +1,5 @@
 import { MOD, STEPS, KINDS, SOURCES, PLANS, FACTORS, LOADS, POSITIONS, byId } from "./data.mjs";
+import { applyDebriefOp, buildDebriefContext } from "./debrief-model.mjs";
 
 /* ------------------------------------------------------------------
  * Live-Zustand: liegt in einer Welt-Einstellung. Nur die aktive SL
@@ -6,7 +7,7 @@ import { MOD, STEPS, KINDS, SOURCES, PLANS, FACTORS, LOADS, POSITIONS, byId } fr
  * ------------------------------------------------------------------ */
 
 export const emptyState = () => ({
-  mode: "off",          // off | wizard | score
+  mode: "off",          // off | wizard | score | debrief
   step: 0,
   draft: {
     kind: null, source: null, name: "",
@@ -19,7 +20,10 @@ export const emptyState = () => ({
   roll: null,           // {dice, pool, value, key}
   scoreId: null,
   score: null,
-  prepId: null,         // verknüpfte Vorbereitung (Inhalt nur bei der SL)          // Anzeige-Schnappschuss der laufenden Score-Seite
+  prepId: null,         // verknüpfte Vorbereitung (Inhalt nur bei der SL)
+  debriefStep: 0,
+  debrief: null,        // Debrief-Entwurf (siehe debrief-model.mjs)
+  debriefMeta: null,    // {entryId, no, name, crew:[{id,name,cardImg,trigger}], clocks, crewTrigger, factionSuggest}
   rev: 0
 });
 
@@ -45,6 +49,10 @@ const PLAYER_FIELDS = new Set(["draft.kind", "draft.source", "draft.name", "draf
 /** Wird auf dem SL-Client ausgeführt. fromGM=false: Wunsch vom Beamer/Spieler. */
 export function applyOp(op, args = {}, fromGM = true) {
   return setState((s) => {
+    if (["dset", "dtoggle", "xp", "crewxp"].includes(op) || (op === "set" && String(args.path ?? "").startsWith("debrief."))) {
+      applyDebriefOp(s, op === "set" ? "dset" : op, args, fromGM);
+      return;
+    }
     switch (op) {
       case "set": {
         if (!PLAYER_FIELDS.has(args.path)) return;
@@ -165,6 +173,7 @@ export function buildContext(s = getState()) {
   }
 
   if (s.score) ctx.scoreView = scoreViewModel(s.score);
+  if (s.mode === "debrief") Object.assign(ctx, { isDebrief: true }, buildDebriefContext(s));
   return ctx;
 }
 
