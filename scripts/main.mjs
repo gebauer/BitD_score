@@ -4,7 +4,7 @@ import { openGMApp } from "./gm-app.mjs";
 import { TableView } from "./table.mjs";
 import { startWizard, showScore, runningScores } from "./score.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
-import { listPreps } from "./prep.mjs";
+import { listPreps, importPreps } from "./prep.mjs";
 
 let table = null;
 
@@ -31,7 +31,7 @@ Hooks.once("init", () => {
     name: "Regelbuch: UUID der PDF-Seite",
     hint: "UUID der PDF-Journalseite (PDF Pager). Leer lassen, um keine 📖-Links zu erzeugen.",
     scope: "world", config: true, type: String,
-    default: ""
+    default: "JournalEntry.LaCpbCF0tRbOWxFG.JournalEntryPage.s3ygzsMAtS4CrEbi"
   });
   game.settings.register(MOD, "rulebookOffset", {
     name: "Regelbuch: Seitenversatz", hint: "PDF-Seite = gedruckte Seite + Versatz.",
@@ -80,6 +80,7 @@ Hooks.once("ready", () => {
     running: runningScores,
     prepare: openPrepEditor,
     preps: listPreps,
+    importPreps,
     state: getState
   };
 });

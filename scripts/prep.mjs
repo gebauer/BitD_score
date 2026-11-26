@@ -30,6 +30,8 @@ export const emptyPrep = () => ({
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const nl = (s) => esc(s).replace(/\n/g, "<br>");
+/** NPC als Link, falls ein Actor verknüpft ist – sonst nur der Name. */
+export const npcLink = (n) => n.uuid ? `@UUID[${n.uuid}]{${esc(n.name)}}` : esc(n.name);
 const roleLabel = (id) => NPC_ROLES.find((r) => r.id === id)?.label ?? "NPC";
 
 async function prepFolder() {
@@ -57,7 +59,7 @@ export async function savePrep(id, prep) {
     threat: !!c.threat, hidden: !!c.hidden
   }));
   prep.obstacles = (prep.obstacles ?? []).filter((o) => (o.kind === "card" && o.cardId) || (o.kind === "text" && o.text?.trim()));
-  prep.npcs = (prep.npcs ?? []).filter((n) => n.uuid);
+  prep.npcs = (prep.npcs ?? []).filter((n) => n.uuid || n.name?.trim());
   const title = `${prep.used ? "✓ " : ""}${prep.name || "Unbenannte Vorbereitung"}`;
   const content = prepHTML(prep);
 
@@ -92,7 +94,7 @@ export function prepHTML(p) {
     .map((x) => `<li><b>${esc(x.label)}</b> (${esc(x.detail)}): ${nl(p.planNotes[x.id])}</li>`).join("");
   const obs = p.obstacles.map((o) => `<li>${o.kind === "card" ? `🂠 ${esc(o.name)}` : nl(o.text)}</li>`).join("");
   const clocks = p.clocks.map((c) => `<li>${esc(c.name)} (${c.size})${c.threat ? " · Bedrohung" : ""}${c.hidden ? " · verdeckt" : ""}</li>`).join("");
-  const npcs = p.npcs.map((n) => `<li><b>${esc(roleLabel(n.role))}:</b> @UUID[${n.uuid}]{${esc(n.name)}}${n.public ? " · öffentlich" : ""}</li>`).join("");
+  const npcs = p.npcs.map((n) => `<li><b>${esc(roleLabel(n.role))}:</b> ${npcLink(n)}${n.uuid ? "" : " <i>(kein Actor)</i>"}${n.public ? " · öffentlich" : ""}</li>`).join("");
   return `<h2>${esc(p.name || "Unbenannt")}</h2>
 <p><b>Ziel:</b> ${esc(p.target || "–")}${p.tier != null && p.tier !== "" ? ` (Tier ${esc(p.tier)})` : ""}${p.district ? ` · ${esc(p.district)}` : ""}</p>
 ${p.hook ? `<p><b>Aufhänger:</b> ${nl(p.hook)}</p>` : ""}${p.loot ? `<p><b>Beute:</b> ${nl(p.loot)}</p>` : ""}
@@ -109,7 +111,7 @@ ${p.used ? `<p><i>Verwendet${p.usedIn ? ` in @UUID[JournalEntry.${p.usedIn}]{die
 export function prepForGMPage(p, planId) {
   const plan = PLANS.find((x) => x.id === planId);
   const note = planId ? p.planNotes?.[planId] : "";
-  const npcs = p.npcs.map((n) => `<li><b>${esc(roleLabel(n.role))}:</b> @UUID[${n.uuid}]{${esc(n.name)}}</li>`).join("");
+  const npcs = p.npcs.map((n) => `<li><b>${esc(roleLabel(n.role))}:</b> ${npcLink(n)}</li>`).join("");
   const obs = p.obstacles.map((o) => `<li>${o.kind === "card" ? esc(o.name) : nl(o.text)}</li>`).join("");
   return `<h3>Aus der Vorbereitung</h3>
 ${note ? `<p><b>${esc(plan?.label)}:</b> ${nl(note)}</p>` : ""}
@@ -120,3 +122,40 @@ ${p.gmNotes ? `<p><b>Notizen</b><br>${nl(p.gmNotes)}</p>` : ""}`;
 }
 
 export const npcRoleLabel = roleLabel;
+
+/* ------------------------------------------------------------------
+ * Import: JSON (ein Objekt oder eine Liste). NPCs und Hindernis-Karten
+ * dürfen per Name angegeben werden und werden hier aufgelöst.
+ * ------------------------------------------------------------------ */
+export async function importPreps(text) {
+  let data;
+  try { data = JSON.parse(text); }
+  catch (err) { ui.notifications.error(`Import: kein gültiges JSON (${err.message})`); return []; }
+  const list = Array.isArray(data) ? data : [data];
+  const deck = game.cards.getName(game.settings.get(MOD, "obstacleDeck"));
+  const created = [];
+  const missing = [];
+  for (const raw of list) {
+    const p = foundry.utils.mergeObject(emptyPrep(), raw ?? {}, { inplace: false, insertKeys: true });
+    p.used = false; p.usedIn = null;
+    p.tier = p.tier === "" || p.tier == null ? null : Number(p.tier);
+    p.npcs = (p.npcs ?? []).map((n) => {
+      if (n.uuid) return n;
+      const a = game.actors.find((x) => x.name.toLowerCase() === String(n.name ?? "").trim().toLowerCase());
+      if (!a) missing.push(`NPC „${n.name}“`);
+      return a ? { ...n, uuid: a.uuid, name: a.name, img: a.img } : { ...n, uuid: null, img: null };
+    });
+    p.obstacles = (p.obstacles ?? []).map((o) => {
+      if (o.kind !== "card" || o.cardId) return o;
+      const c = deck?.cards.find((x) => x.name.toLowerCase() === String(o.name ?? "").trim().toLowerCase());
+      if (!c) { missing.push(`Karte „${o.name}“`); return { kind: "text", text: o.name ?? "" }; }
+      return { kind: "card", cardId: c.id, name: c.name, img: c.faces?.[c.face ?? 0]?.img ?? c.faces?.[0]?.img ?? c.img };
+    });
+    const entry = await savePrep(null, p);
+    if (entry) created.push(entry);
+  }
+  ui.notifications.info(`Import: ${created.length} Vorbereitung(en) angelegt.`);
+  if (missing.length) ui.notifications.warn(`Import: nicht gefunden – ${missing.join(", ")}. Als Name bzw. Freitext übernommen.`, { permanent: true });
+  Hooks.callAll(`${MOD}.prepsChanged`);
+  return created;
+}

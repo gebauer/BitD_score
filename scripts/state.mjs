@@ -18,8 +18,8 @@ export const emptyState = () => ({
   },
   roll: null,           // {dice, pool, value, key}
   scoreId: null,
-  score: null,          // Anzeige-Schnappschuss der laufenden Score-Seite
-  prepId: null,         // verknüpfte Vorbereitung (Inhalt nur bei der SL)
+  score: null,
+  prepId: null,         // verknüpfte Vorbereitung (Inhalt nur bei der SL)          // Anzeige-Schnappschuss der laufenden Score-Seite
   rev: 0
 });
 

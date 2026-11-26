@@ -10,10 +10,10 @@ Geführter Score-Ablauf für *Blades in the Dark* in Foundry VTT (v13/v14), para
 
 ## Installation
 
-Manifest-URL:
+Manifest-URL (nachdem das Repo `gebauer/bitd-score` mit Release existiert):
 
 ```
-https://github.com/gebauer/BitD_score/releases/latest/download/module.json
+https://github.com/gebauer/bitd-score/releases/latest/download/module.json
 ```
 
 Release anlegen: `module.json` und `bitd-score.zip` als Assets an das Release hängen.
@@ -47,6 +47,11 @@ Gespeichert wird im Journal-Ordner „Score-Vorbereitung“ (Besitzrechte: nur S
 
 Im Wizard verknüpfst du die Vorbereitung im Hinweiskasten, sobald die Spieler ihr Ziel genannt haben. Übernommen werden nur Ziel und Tier (falls noch leer) – nie der Name. Alles andere siehst nur du, passend zum Schritt. „Hindernisse ziehen“ zeigt zuerst die vorbereiteten. „Score beginnen“ legt die Uhren an, schreibt die Vorbereitung auf die 🔒 SL-Seite und markiert sie als verwendet (✓).
 
+### Import (JSON)
+
+SL-Fenster → **Importieren (JSON)** oder `game.modules.get("bitd-score").api.importPreps(text)`.
+Ein Objekt oder eine Liste im Vorbereitungs-Format. NPCs dürfen nur mit `name` angegeben werden (werden über den Actor-Namen verknüpft), Hindernis-Karten mit `{"kind":"card","name":"…"}` über den Kartennamen. Nicht Gefundenes wird als Name bzw. Freitext übernommen und gemeldet.
+
 ## Noch nicht drin
 
 - Outro-Wizard (Payoff, Heat, Entanglements, Fraktionen) – ersetzt `MAKRO-score-beenden.js`.
@@ -56,9 +61,4 @@ Im Wizard verknüpfst du die Vorbereitung im Hinweiskasten, sobald die Spieler i
 ## Lizenzen / Assets
 
 - Alegreya, Alegreya SC, Oswald: SIL Open Font License (siehe `fonts/`).
-- Holztextur (`assets/holz.webp`) und Tintenklecks (`assets/tinte.webp`, freie Grafik) sind im Modul enthalten.
-- **Skylines – nur lokal, nicht im Repo/Release** (Lizenz unklar). Wer sie nutzen will, legt sie selbst in `modules/bitd-score/assets/` ab:
-  - `skyline-a.webp` – Skyline A: <https://www.worldanvil.com/w/doskvol-zlifer/a/rowan-house-landmark>
-  - `skyline-b.webp` – Skyline B: <https://www.worldanvil.com/w/doskvol-zlifer/a/coalridge-settlement>
-
-  Ohne die Datei bleibt der untere Rand der Tisch-Ansicht einfach leer (die Konsole meldet ein fehlendes Bild).
+- Holztextur, Skyline und Tintenklecks stammen aus dem *Blades FoundryVTT Template* (disposablediva) – nur für den privaten Gebrauch.
