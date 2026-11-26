@@ -101,9 +101,12 @@
     {{#if is_loadout}}
     <table class="bsg-loads">
       {{#each crew}}
-      <tr><th>{{name}}</th>{{#each loads}}<td><button type="button" class="{{#if selected}}selected{{/if}}" data-op="load" data-actor="{{../id}}" data-value="{{id}}">{{label}} ({{value}})</button></td>{{/each}}</tr>
+      <tr><th>{{#if cardImg}}<img class="bsg-crewimg" src="{{cardImg}}" alt="">{{/if}}{{name}}{{#if dock}} <small>({{dock}})</small>{{/if}}</th>{{#each loads}}<td><button type="button" class="{{#if selected}}selected{{/if}}" data-op="load" data-actor="{{../id}}" data-value="{{id}}">{{label}} ({{value}})</button></td>{{/each}}</tr>
       {{else}}<tr><td>Keine Spielercharaktere mit Besitzer gefunden.</td></tr>{{/each}}
     </table>
+    <div class="bsg-choices">
+      <button type="button" data-action="rereadCrew" data-tooltip="Crew-Karten erneut auslesen, z. B. wenn eine Karte umgedreht wurde. Gewählte Loads bleiben."><i class="fa-solid fa-arrows-rotate"></i> Crew neu einlesen</button>
+    </div>
     <p class="bsg-tip">Gegenstände erst im Spiel ankreuzen {{{loadRuleHTML}}}.</p>
     {{/if}}
 

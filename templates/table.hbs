@@ -71,6 +71,20 @@
     {{/if}}
 
     {{#if is_loadout}}
+    {{#if crewCards}}
+    <div class="bst-crewcards" style="{{crewCardStyle}}">
+      {{#each crew}}
+      <div class="bst-crewcard" style="--tilt:{{tilt}}deg">
+        <img src="{{cardImg}}" alt="{{name}}">
+        <div class="bst-crewloads">
+          {{#each loads}}
+          <button type="button" class="bst-pill{{#if selected}} selected{{/if}}" data-op="load" data-actor="{{../id}}" data-value="{{id}}">{{label}}<small>{{value}}</small></button>
+          {{/each}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
     <div class="bst-loads">
       {{#each crew}}
       <div class="bst-loadrow">
@@ -83,6 +97,7 @@
       <div class="bst-paper"><span class="bst-card-text">Keine Spielercharaktere gefunden.</span></div>
       {{/each}}
     </div>
+    {{/if}}
     {{/if}}
 
     {{#if is_engagement}}
@@ -139,7 +154,7 @@
     </div>
     <div class="bst-news-crew">
       <span class="bst-label">Die Crew · Load</span>
-      <ul>{{#each crew}}<li>{{name}} <span>· {{load}}</span></li>{{/each}}</ul>
+      <ul>{{#each crew}}<li>{{#if cardImg}}<img class="bst-crewthumb" src="{{cardImg}}" alt="">{{/if}}{{name}} <span>· {{load}}</span></li>{{/each}}</ul>
     </div>
     {{#if npcs.length}}
     <div class="bst-news-crew">

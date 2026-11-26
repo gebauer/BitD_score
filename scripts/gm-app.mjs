@@ -1,6 +1,6 @@
 import { MOD, STEPS, CLOCK_SIZES } from "./data.mjs";
 import { getState, setState, buildContext, request, clockStyle } from "./state.mjs";
-import { startWizard, resetWizard, rollEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
+import { startWizard, rereadCrew, resetWizard, rollEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
 import { captureFocus, restoreFocus, bindInteractions } from "./ui-common.mjs";
 import { listPreps, getPrep, npcRoleLabel, importPreps } from "./prep.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
@@ -19,6 +19,7 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       start: () => startWizard({ fresh: true }),
       resume: () => startWizard({ fresh: false }),
+      rereadCrew: () => rereadCrew(),
       reset: ScoreGMApp.#reset,
       next: () => { const s = getState(); return setState((st) => { st.step = Math.min(STEPS.length - 1, s.step + 1); }); },
       prev: () => { const s = getState(); return setState((st) => { st.step = Math.max(0, s.step - 1); }); },

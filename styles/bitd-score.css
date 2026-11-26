@@ -126,6 +126,14 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 
 .bst-loads { display: flex; flex-direction: column; gap: 22px; }
 .bst-loadrow { display: flex; align-items: center; gap: 18px; }
+/* Loadout mit Crew-Karten */
+.bst-crewcards { display: flex; gap: var(--gap, 28px); align-items: flex-start; padding-top: 6px; }
+.bst-crewcard { width: var(--col, 280px); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.bst-crewcard img { height: var(--card-h, 380px); width: auto; max-width: 100%; object-fit: contain; border: none;
+  transform: rotate(var(--tilt, 0deg)); box-shadow: 0 14px 30px rgba(0,0,0,.7); }
+.bst-crewloads { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.bst-crewloads .bst-pill { display: flex; flex-direction: column; align-items: center; padding: 8px 2px; font-size: calc(var(--col, 280px) / 13); }
+.bst-crewloads .bst-pill small { font-size: .8em; }
 .bst-name { min-width: 340px; padding: 12px 24px; background: var(--bs-ink); color: var(--bs-paper); font: 700 38px var(--bs-display); text-transform: uppercase; }
 
 /* Engagement */
@@ -178,6 +186,9 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 .bst-news-crew { border-top: 1px solid var(--bs-ink); padding-top: 18px; }
 .bst-news-crew ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 30px; font-size: 30px; }
 .bst-news-crew li span { opacity: .6; }
+.bst-news-crew li { display: flex; align-items: center; gap: 14px; }
+.bst-news-crew li span { white-space: nowrap; }
+.bst-crewthumb { height: 90px; width: auto; border: none; box-shadow: 0 4px 10px rgba(0,0,0,.4); transform: rotate(-2deg); }
 
 .bst-clocks { position: absolute; top: 80px; right: 90px; width: 500px; box-sizing: border-box; max-height: 920px; }
 .bst-clocks h2 { margin: 0 0 12px; border: none; font: 700 30px var(--bs-display); letter-spacing: 3px; text-transform: uppercase; }
@@ -227,6 +238,7 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 .bsg-tip { margin: 0; font-style: italic; opacity: .8; }
 .bsg-loads { width: 100%; border: none; background: none; }
 .bsg-loads th { text-align: left; }
+.bsg-crewimg { height: 40px; width: auto; border: none; vertical-align: middle; margin-right: 6px; }
 .bsg-factors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .bsg-factors button { text-align: left; }
 .bsg-rollrow { display: flex; align-items: center; gap: 12px; }

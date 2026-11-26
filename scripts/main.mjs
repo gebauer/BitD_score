@@ -5,6 +5,7 @@ import { TableView } from "./table.mjs";
 import { startWizard, showScore, runningScores } from "./score.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
 import { listPreps, importPreps } from "./prep.mjs";
+import { guessCrewScene } from "./crew.mjs";
 
 let table = null;
 
@@ -63,6 +64,27 @@ Hooks.once("setup", () => {
     hint: "Dieser Benutzer bekommt die Tisch-Ansicht als Vollbild-Overlay, sobald die SL einen Score zeigt.",
     scope: "world", config: true, type: String, choices, default: "",
     onChange: () => syncTable()
+  });
+
+  // Crew aus den Crew-Karten (Complete Card Management) – Szenenliste gibt es erst hier
+  game.settings.register(MOD, "crewSource", {
+    name: "Crew: Quelle",
+    hint: "Karten = offene Crew-Karten in den Docks der Crew-Szene (braucht Complete Card Management). Charaktere = alle Spielercharaktere.",
+    scope: "world", config: true, type: String, default: "cards",
+    choices: { cards: "Crew-Karten in den Docks", actors: "Alle Spielercharaktere" }
+  });
+  game.settings.register(MOD, "dockPrefix", {
+    name: "Crew: Namensanfang der Docks",
+    hint: "Regionen auf der Crew-Szene, deren Name so beginnt, gelten als Dock. Leer = alle offenen Crew-Karten der Szene zählen.",
+    scope: "world", config: true, type: String, default: "Dock"
+  });
+  const scenes = { "": "– keine –" };
+  for (const sc of game.scenes) scenes[sc.id] = sc.name;
+  game.settings.register(MOD, "crewScene", {
+    name: "Crew: Szene",
+    hint: "Szene, auf der die Crew-Karten in den Docks liegen.",
+    scope: "world", config: true, type: String, choices: scenes,
+    default: guessCrewScene(game.settings.get(MOD, "dockPrefix") || "Dock")
   });
 });
 

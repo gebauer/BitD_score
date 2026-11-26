@@ -1,6 +1,7 @@
 import { MOD, KINDS, SOURCES, PLANS, LOADS, POSITIONS, CLOCK_SIZES, byId } from "./data.mjs";
 import { getState, setState, poolOf, evaluateDice, clockStyle } from "./state.mjs";
 import { getPrep, markUsed, prepForGMPage, npcRoleLabel, npcLink } from "./prep.mjs";
+import { readCrew } from "./crew.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const OWN = () => CONST.DOCUMENT_OWNERSHIP_LEVELS;
@@ -16,9 +17,7 @@ export function ruleLink(page) {
 /* ---------------- Wizard starten ---------------- */
 
 export async function startWizard({ fresh = true } = {}) {
-  const crew = game.actors
-    .filter((a) => a.type === "character" && a.hasPlayerOwner)
-    .map((a) => ({ id: a.id, name: a.name }));
+  const crew = await readCrew();   // vorher lesen – setState läuft in einer Warteschlange
   await setState((s) => {
     const keep = fresh ? null : s.draft;
     s.mode = "wizard";
@@ -26,8 +25,23 @@ export async function startWizard({ fresh = true } = {}) {
     s.scoreId = null;
     s.score = null;
     if (!keep) { s.step = 0; s.draft = { kind: null, source: null, name: "", target: "", tier: null, plan: null, detail: "", crew, loads: {}, factors: {} }; }
-    else s.draft.crew = crew;
+    else applyCrew(s, crew);
   });
+}
+
+/** Crew neu einlesen (z. B. Karte umgedreht); Loads der weiterhin Anwesenden bleiben. */
+export async function rereadCrew() {
+  const crew = await readCrew();
+  await setState((s) => applyCrew(s, crew));
+  ui.notifications.info(`Crew: ${crew.map((c) => c.name).join(", ") || "niemand"}`);
+}
+
+function applyCrew(s, crew) {
+  s.draft.crew = crew;
+  const ids = new Set(crew.map((c) => c.id));
+  const loads = {};
+  for (const [id, v] of Object.entries(s.draft.loads ?? {})) if (ids.has(id) && v) loads[id] = v;
+  s.draft.loads = loads;
 }
 
 export async function resetWizard() {
@@ -96,7 +110,7 @@ export function snapshotFrom(data, clocks = []) {
     plan: plan?.label ?? "–", detailLabel: plan?.detail ?? "Detail", detail: data.detail || "–",
     position: pos?.label ?? "–", positionId: pos?.id ?? "",
     rollText: data.roll ? `${data.roll.pool <= 0 ? 0 : data.roll.pool}W · ${data.roll.dice.join(" ")}` : "",
-    crew: (data.crew ?? []).map((c) => ({ name: c.name, load: byId(LOADS, data.loads?.[c.id])?.label ?? "–" })),
+    crew: (data.crew ?? []).map((c) => ({ name: c.name, cardImg: c.cardImg ?? "", load: byId(LOADS, data.loads?.[c.id])?.label ?? "–" })),
     phase: data.phase ?? "running",
     created: data.created,
     npcs: data.npcs ?? [],

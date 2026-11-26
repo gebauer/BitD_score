@@ -25,6 +25,17 @@ Release anlegen: `module.json` und `bitd-score.zip` als Assets an das Release h�
 3. Optional: Skyline-Bild (siehe unten), Ordner für Scores, Regelbuch-UUID/Versatz (PDF Pager), Kartenstapel für Hindernisse.
 4. **Kirsty** auf dem SL-PC und dem Beamer-PC installieren (Desktop-Lizenz – die Schrift wird deshalb nicht mitgeliefert). Ohne Kirsty fällt die Anzeige auf Oswald zurück.
 
+## Crew aus Karten
+
+Standardmäßig liest der Wizard die Crew aus den **Crew-Karten auf der Crew-Szene** (braucht *Complete Card Management*):
+wer mitspielt, liegt als Karte **offen in einem Dock**; umgedrehte Karten oder Karten außerhalb der Docks zählen nicht.
+
+- Einstellungen: **Crew: Quelle** (Karten / alle Spielercharaktere), **Crew: Szene**, **Crew: Namensanfang der Docks** (Standard `Dock`; leer = alle offenen Crew-Karten der Szene).
+- Eine Karte gehört zu dem Charakter aus ihrem Flag `world.actorId` (gesetzt vom Crew-Karten-Makro). Reihenfolge = Dock-Name („Dock 2“ vor „Dock 10“).
+- Beim Start und bei „Planung fortsetzen“ wird die Crew neu gelesen; im Schritt Loadout gibt es **Crew neu einlesen** – gewählte Loads der Anwesenden bleiben.
+- Am Beamer zeigt der Schritt Loadout die Kartenbilder mit den Load-Knöpfen darunter, die Score-Seite kleine Kartenbilder vor den Namen.
+- Findet der Wizard keine offene Karte in einem Dock (oder ist Complete Card Management nicht aktiv), nimmt er wie früher alle Spielercharaktere.
+
 ## Bedienung
 
 - Knopf **Score-Wizard** im Journal-Verzeichnis, oder Makro:

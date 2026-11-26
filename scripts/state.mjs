@@ -12,7 +12,7 @@ export const emptyState = () => ({
     kind: null, source: null, name: "",
     target: "", tier: null,
     plan: null, detail: "",
-    crew: [],           // [{id, name}] – Schnappschuss beim Start
+    crew: [],           // [{id, name, cardImg?, dock?}] – Schnappschuss beim Start
     loads: {},          // actorId -> light|normal|heavy
     factors: {}         // "0+" -> true
   },
@@ -136,11 +136,14 @@ export function buildContext(s = getState()) {
     tierLabel: d.tier == null ? "" : ["0", "I", "II", "III", "IV", "V", "VI"][d.tier],
     plans: PLANS.map((p, i) => ({ ...p, selected: d.plan === p.id, tilt: [-1.5, 1, -0.6, 0.8, -1.2, 1.4][i] })),
     plan,
-    crew: d.crew.map((c) => ({
+    crew: d.crew.map((c, i) => ({
       ...c,
+      tilt: [-2, 1.5, -1, 2, -1.5, 1, -0.5, 1.8][i % 8],
       loads: LOADS.map((l) => ({ ...l, selected: d.loads[c.id] === l.id })),
       loadLabel: byId(LOADS, d.loads[c.id])?.label ?? "–"
     })),
+    crewCards: d.crew.length > 0 && d.crew.every((c) => c.cardImg),
+    crewCardStyle: crewCardStyle(d.crew.length),
     factors: FACTORS.map((f, i) => ({ ...f, i, plusKey: `${i}+`, minusKey: `${i}-`, plusOn: !!d.factors[`${i}+`], minusOn: !!d.factors[`${i}-`] })),
     pool, poolLabel: pool <= 0 ? "0W" : `${pool}W`,
     poolRule: pool <= 0 ? "Pool 0: zwei Würfel, der niedrigere zählt" : "Der höchste Würfel zählt",
@@ -163,6 +166,14 @@ export function buildContext(s = getState()) {
 
   if (s.score) ctx.scoreView = scoreViewModel(s.score);
   return ctx;
+}
+
+/** Loadout am Beamer: Spaltenbreite/Kartenhöhe je nach Anzahl (Arbeitsfläche 1220 px breit). */
+function crewCardStyle(n) {
+  const gap = n > 4 ? 18 : 28;
+  const col = Math.min(290, Math.floor((1220 - Math.max(0, n - 1) * gap) / Math.max(1, n)));
+  const h = Math.min(380, Math.floor(col * 1.3));
+  return `--col:${col}px;--card-h:${h}px;--gap:${gap}px`;
 }
 
 export function clockStyle(c) {
