@@ -64,7 +64,7 @@ export async function rollEngagement() {
     speaker: { alias: "Engagement" },
     flavor: `<div class="bitd-score-chat"><b>Engagement Roll</b> · ${esc(plan?.label ?? "")}${s.draft.detail ? ` (${esc(s.draft.detail)})` : ""}<br>
       Pool ${pool <= 0 ? "0 (2W, niedrigster)" : pool + "W"} → <b class="pos-${pos.id}">${pos.label}</b></div>`
-  });
+  }, { rollMode: CONST.DICE_ROLL_MODES.PUBLIC });   // immer öffentlich – sonst sieht der Beamer bei SL-Wurfmodus keine 3D-Würfel
   if (game.dice3d && msg) await game.dice3d.waitFor3DAnimationByMessageID(msg.id).catch(() => {});
   await setState((st) => { st.roll = { dice, pool }; });
 }
