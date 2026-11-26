@@ -1,6 +1,6 @@
-import { MOD, KINDS, SOURCES, PLANS, FACTORS, LOADS, POSITIONS, CLOCK_SIZES, byId } from "./data.mjs";
+import { MOD, KINDS, SOURCES, PLANS, LOADS, POSITIONS, CLOCK_SIZES, byId } from "./data.mjs";
 import { getState, setState, poolOf, evaluateDice, clockStyle } from "./state.mjs";
-import { getPrep, markUsed, prepForGMPage, npcRoleLabel } from "./prep.mjs";
+import { getPrep, markUsed, prepForGMPage, npcRoleLabel, npcLink } from "./prep.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const OWN = () => CONST.DOCUMENT_OWNERSHIP_LEVELS;
@@ -25,13 +25,13 @@ export async function startWizard({ fresh = true } = {}) {
     s.roll = null;
     s.scoreId = null;
     s.score = null;
-    if (!keep) { s.step = 0; s.prepId = null; s.draft = { kind: null, source: null, name: "", target: "", tier: null, plan: null, detail: "", crew, loads: {}, factors: {} }; }
+    if (!keep) { s.step = 0; s.draft = { kind: null, source: null, name: "", target: "", tier: null, plan: null, detail: "", crew, loads: {}, factors: {} }; }
     else s.draft.crew = crew;
   });
 }
 
 export async function resetWizard() {
-  await setState((s) => { s.mode = "off"; s.step = 0; s.roll = null; s.prepId = null; s.draft = { kind: null, source: null, name: "", target: "", tier: null, plan: null, detail: "", crew: [], loads: {}, factors: {} }; });
+  await setState((s) => { s.mode = "off"; s.step = 0; s.roll = null; s.draft = { kind: null, source: null, name: "", target: "", tier: null, plan: null, detail: "", crew: [], loads: {}, factors: {} }; });
 }
 
 /* ---------------- Engagement Roll ---------------- */
@@ -114,10 +114,7 @@ export async function beginScore() {
     npcs: (prep?.npcs ?? []).filter((n) => n.public).map((n) => ({ uuid: n.uuid, name: n.name, role: npcRoleLabel(n.role) })) };
   const clocks = (prep?.clocks ?? []).map((c) => ({ id: foundry.utils.randomID(), name: c.name, size: c.size, value: 0, threat: !!c.threat, hidden: !!c.hidden, touched: Date.now() }));
   const snap = snapshotFrom(data, clocks);
-  const factorsTxt = Object.entries(data.factors).filter(([, v]) => v).map(([k]) => {
-    const f = FACTORS[Number(k[0])];
-    return f ? `${k[1] === "+" ? "+1W" : "−1W"} ${k[1] === "+" ? f.plus : f.minus}` : k;
-  }).join(", ") || "keine";
+  const factorsTxt = Object.entries(data.factors).filter(([, v]) => v).map(([k]) => k).join(", ") || "keine";
 
   const entry = await JournalEntry.create({
     name: `${String(no).padStart(2, "0")} · ${snap.name} ⏳`,
@@ -205,7 +202,7 @@ export function overviewHTML(sc) {
 </div>
 ${clocks ? `<h2>Uhren</h2><div class="bss-clocks">${clocks}</div>` : ""}
 ${crew ? `<h2>Die Crew · Load</h2><ul class="bss-crew">${crew}</ul>` : ""}
-${sc.npcs?.length ? `<h2>Beteiligte</h2><ul class="bss-crew">${sc.npcs.map((n) => `<li>@UUID[${n.uuid}]{${esc(n.name)}} <span>· ${esc(n.role)}</span></li>`).join("")}</ul>` : ""}
+${sc.npcs?.length ? `<h2>Beteiligte</h2><ul class="bss-crew">${sc.npcs.map((n) => `<li>${npcLink(n)} <span>· ${esc(n.role)}</span></li>`).join("")}</ul>` : ""}
 <p class="bss-rules">${ruleLink(127)} Plan &amp; Loadout · ${ruleLink(128)} Engagement · ${ruleLink(15)} Uhren</p>
 <p class="bss-auto">Diese Seite wird vom Score-Wizard erzeugt – Notizen gehören auf „Notizen“.</p>
 </div>`;

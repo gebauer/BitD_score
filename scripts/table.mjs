@@ -29,9 +29,7 @@ export class TableView {
     const ctx = buildContext(s);
     ctx.table = true;
     const f = captureFocus(this.stage);
-    const html = await renderTpl(`modules/${MOD}/templates/table.hbs`, ctx);
-    if (!this.stage) return;   // während des Renderns zerstört (z. B. SL hat pausiert)
-    this.stage.innerHTML = html;
+    this.stage.innerHTML = await renderTpl(`modules/${MOD}/templates/table.hbs`, ctx);
     restoreFocus(this.stage, f);
     this.applyHidden();
     this.fit();

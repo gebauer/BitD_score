@@ -2,7 +2,7 @@ import { MOD, STEPS, CLOCK_SIZES } from "./data.mjs";
 import { getState, setState, buildContext, request, clockStyle } from "./state.mjs";
 import { startWizard, resetWizard, rollEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
 import { captureFocus, restoreFocus, bindInteractions } from "./ui-common.mjs";
-import { listPreps, getPrep, npcRoleLabel } from "./prep.mjs";
+import { listPreps, getPrep, npcRoleLabel, importPreps } from "./prep.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
 import { PLANS } from "./data.mjs";
 
@@ -20,8 +20,8 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       start: () => startWizard({ fresh: true }),
       resume: () => startWizard({ fresh: false }),
       reset: ScoreGMApp.#reset,
-      next: () => setState((st) => { st.step = Math.min(STEPS.length - 1, st.step + 1); }),
-      prev: () => setState((st) => { st.step = Math.max(0, st.step - 1); }),
+      next: () => { const s = getState(); return setState((st) => { st.step = Math.min(STEPS.length - 1, s.step + 1); }); },
+      prev: () => { const s = getState(); return setState((st) => { st.step = Math.max(0, s.step - 1); }); },
       goto: (ev, t) => setState((st) => { st.step = Number(t.dataset.step); }),
       roll: () => rollEngagement(),
       reroll: () => setState((st) => { st.roll = null; }),
@@ -37,6 +37,7 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       clockThreat: (ev, t) => clockOps.toggleThreat(t.dataset.clock),
       clockHidden: (ev, t) => clockOps.toggleHidden(t.dataset.clock),
       newPrep: () => openPrepEditor(null),
+      importPrep: ScoreGMApp.#importPrep,
       editPrep: (ev, t) => openPrepEditor(t.dataset.prep),
       unlinkPrep: () => setState((st) => { st.prepId = null; })
     }
@@ -120,6 +121,17 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       content: "<p>Alle Eingaben dieses Wizard-Durchlaufs verwerfen?</p>"
     });
     if (ok) await resetWizard();
+  }
+
+  static async #importPrep() {
+    const text = await foundry.applications.api.DialogV2.prompt({
+      window: { title: "Vorbereitung importieren" },
+      position: { width: 640 },
+      content: `<p>JSON einfügen – ein Score oder eine Liste von Scores. NPCs und Hindernis-Karten dürfen per Name angegeben werden.</p>
+        <textarea name="json" rows="16" style="width:100%;font-family:monospace;font-size:12px"></textarea>`,
+      ok: { label: "Importieren", callback: (event, button) => button.form.elements.json.value }
+    }).catch(() => null);
+    if (text?.trim()) await importPreps(text);
   }
 
   static async #clockAdd(ev, target) {

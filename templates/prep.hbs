@@ -16,7 +16,7 @@
     <div class="bsp-npcs">
       {{#each npcs}}
       <div class="bsp-npc">
-        <img src="{{img}}" alt="">
+        {{#if img}}<img src="{{img}}" alt="">{{else}}<i class="fa-solid fa-user-slash" data-tooltip="Kein Actor verknüpft"></i>{{/if}}
         <span class="grow">{{name}}</span>
         <select name="npcs.{{i}}.role">{{#each roles}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
         <label data-tooltip="Erscheint auch auf der öffentlichen Score-Seite"><input type="checkbox" name="npcs.{{i}}.public" {{#if public}}checked{{/if}}> öffentlich</label>
