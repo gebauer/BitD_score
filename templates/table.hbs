@@ -227,21 +227,18 @@
       {{#each pcs}}
       <div class="bst-paper bst-xpcard" style="--tilt:{{tilt}}deg">
         <div class="bst-xphead">{{#if cardImg}}<img src="{{cardImg}}" alt="">{{/if}}<b>{{name}}</b><span class="bst-xptotal">{{total}}</span></div>
-        <span class="bst-label">Verzweifelte Würfe</span>
-        {{#each attrs}}
-        <div class="bst-xprow"><span>{{label}}</span>
-          <button type="button" class="bst-xpbtn" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="-1" aria-label="{{label}} −1">−</button><b>{{value}}</b><button type="button" class="bst-xpbtn" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="1" aria-label="{{label}} +1">+</button></div>
-        {{/each}}
         {{#each triggers}}
-        <div class="bst-xprow"><span title="{{label}}">{{short}}</span>
-          {{#each opts}}{{#if v}}<button type="button" class="bst-xpbtn{{#if on}} on{{/if}}" data-op="xp" data-actor="{{../../id}}" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/if}}{{/each}}</div>
+        <div class="bst-xpq">
+          <span class="bst-xpask">{{label}}?<small>{{detail}}</small></span>
+          <span class="bst-seg">{{#each opts}}<button type="button" class="bst-xpbtn{{#if selected}} on{{/if}}" data-op="xp" data-actor="{{../../id}}" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/each}}</span>
+        </div>
         {{/each}}
       </div>
       {{else}}<div class="bst-paper"><span class="bst-card-text">Keine Crew im Score gespeichert.</span></div>{{/each}}
     </div>
     <div class="bst-crewxp">
       <span class="bst-label light">Crew-XP {{crewXpTotal}}</span>
-      {{#each crewXp}}<span class="bst-pill{{#if opts.[1].on}} selected{{/if}}">{{label}} <small>{{#if opts.[2].on}}2{{else}}{{#if opts.[1].on}}1{{else}}0{{/if}}{{/if}}</small></span>{{/each}}
+      {{#each crewXp}}<span class="bst-pill{{#if value}} selected{{/if}}">{{label}} <small>{{value}}</small></span>{{/each}}
     </div>
     {{/if}}
 

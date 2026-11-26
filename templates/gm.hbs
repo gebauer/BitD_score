@@ -327,25 +327,20 @@
     {{/if}}
 
     {{#if dstep_xp}}
-    <table class="bsg-xp">
-      <thead><tr><th></th>{{#each pcs.[0].attrs}}<th>{{label}}</th>{{/each}}<th>Playbook</th><th>Überzeug.</th><th>Laster</th><th>Σ</th></tr></thead>
-      <tbody>
+    <div class="bsg-xpgrid">
+      <span></span>{{#each xpHeads}}<span class="bsg-xphead" data-tooltip="{{ask}}">{{label}}?</span>{{/each}}<span class="bsg-xphead">Σ</span>
       {{#each pcs}}
-      <tr>
-        <th>{{#if cardImg}}<img class="bsg-crewimg" src="{{cardImg}}" alt="">{{/if}}{{name}}</th>
-        {{#each attrs}}<td class="bsg-counter"><button type="button" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="-1">−</button><b>{{value}}</b><button type="button" data-op="xp" data-actor="{{../id}}" data-key="{{id}}" data-value="1">+</button></td>{{/each}}
-        {{#each triggers}}<td class="bsg-tri" data-tooltip="{{label}}">{{#each opts}}{{#if v}}<button type="button" class="{{#if on}}on{{/if}}" data-op="xp" data-actor="{{../../id}}" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/if}}{{/each}}</td>{{/each}}
-        <td><b>{{total}}</b></td>
-      </tr>
-      {{else}}<tr><td>Keine Crew im Score gespeichert.</td></tr>{{/each}}
-      </tbody>
-    </table>
-    {{#each pcs}}{{#if trigger}}<p class="bsg-tip"><b>{{name}}:</b> {{trigger}}</p>{{/if}}{{/each}}
+      <div class="bsg-xpname">{{#if cardImg}}<img class="bsg-crewimg" src="{{cardImg}}" alt="">{{/if}}<span><b>{{name}}</b>{{#if trigger}}<small>{{trigger}}</small>{{/if}}</span></div>
+      {{#each triggers}}<div class="bsg-seg" data-tooltip="{{detail}}">{{#each opts}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="xp" data-actor="{{../../id}}" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/each}}</div>{{/each}}
+      <b class="bsg-xptotal">{{total}}</b>
+      {{else}}<p class="bsg-tip">Keine Crew im Score gespeichert.</p>{{/each}}
+    </div>
     <h3 class="bsg-sub">Crew-XP <small>Σ {{crewXpTotal}}</small></h3>
     {{#each crewXp}}
-    <div class="bsg-xprow"><span>{{label}}</span><span class="bsg-tri">{{#each opts}}{{#if v}}<button type="button" class="{{#if on}}on{{/if}}" data-op="crewxp" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/if}}{{/each}}</span></div>
+    <div class="bsg-xprow"><span>{{label}}{{#if detail}}<small>{{detail}}</small>{{/if}}</span>
+      <span class="bsg-seg">{{#each opts}}<button type="button" class="{{#if selected}}selected{{/if}}" data-op="crewxp" data-key="{{../id}}" data-value="{{v}}">{{v}}</button>{{/each}}</span></div>
     {{/each}}
-    <p class="bsg-tip">Spieler können ihre XP am Beamer anklicken. Nochmal klicken = eins weniger.</p>
+    <p class="bsg-tip">Verzweifelte Würfe werden während des Scores auf dem Bogen notiert. Spieler können ihre drei Fragen auch am Beamer anklicken.</p>
     {{/if}}
 
     {{#if dstep_abschluss}}

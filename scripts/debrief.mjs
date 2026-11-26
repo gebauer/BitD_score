@@ -1,6 +1,6 @@
-import { MOD, DEBRIEF_STEPS, OUTCOMES, HEAT_MODS, XP_ATTRS, XP_TRIGGERS, CREW_XP } from "./data.mjs";
+import { MOD, DEBRIEF_STEPS, OUTCOMES, XP_TRIGGERS, CREW_XP } from "./data.mjs";
 import { getState, setState, clockStyle } from "./state.mjs";
-import { emptyDebrief, emptyPcXp, debriefCalc, entanglementValue, heatModsText } from "./debrief-model.mjs";
+import { emptyDebrief, emptyPcXp, debriefCalc, entanglementValue, heatModsText, firstClue } from "./debrief-model.mjs";
 import { snapshotFrom, renderOverview, ruleLink } from "./score.mjs";
 import { getPrep, npcRoleLabel } from "./prep.mjs";
 
@@ -69,7 +69,7 @@ export async function startDebrief(entryId) {
   const meta = {
     entryId, no: data.no, name: data.name || "Ohne Namen", rerun: !!data.debrief,
     crewActor: crewActor?.name ?? "", crewActorId: crewActor?.id ?? null,
-    crewTrigger: clueText(crewActor?.items?.find((i) => i.type === "crew_type")?.system?.experience_clues),
+    crewTrigger: firstClue(clueText(crewActor?.items?.find((i) => i.type === "crew_type")?.system?.experience_clues)),
     crew: (data.crew ?? []).map((c) => {
       const a = game.actors.get(c.id);
       return { id: c.id, name: a?.name ?? c.name, cardImg: c.cardImg ?? "",
@@ -234,8 +234,8 @@ export function publicDebrief(d, crew = []) {
   const names = Object.fromEntries((crew ?? []).map((x) => [x.id, x.name]));
   const pcs = Object.entries(d.pcXp ?? {}).map(([id, x]) => ({
     name: names[id] ?? game.actors?.get(id)?.name ?? "?",
-    cells: [...XP_ATTRS, ...XP_TRIGGERS].map((k) => x[k.id] ?? 0),
-    total: [...XP_ATTRS, ...XP_TRIGGERS].reduce((n, k) => n + (x[k.id] ?? 0), 0)
+    cells: XP_TRIGGERS.map((k) => Number(x[k.id]) || 0),
+    total: XP_TRIGGERS.reduce((n, k) => n + (Number(x[k.id]) || 0), 0)
   }));
   const ent = d.entanglement?.secret === false && (d.entanglement.name || d.entanglement.text)
     ? { name: d.entanglement.name, text: d.entanglement.text } : null;
@@ -253,7 +253,7 @@ export function publicDebrief(d, crew = []) {
 
 export function debriefOverviewHTML(p) {
   if (!p) return "";
-  const head = [...XP_ATTRS.map((a) => a.label), "Playbook", "Überzeug.", "Laster", "Σ"].map((h) => `<th>${esc(h)}</th>`).join("");
+  const head = [...XP_TRIGGERS.map((t) => t.label), "Σ"].map((h) => `<th>${esc(h)}</th>`).join("");
   const rows = p.pcs.map((r) => `<tr><td>${esc(r.name)}</td>${r.cells.map((v) => `<td>${v || "·"}</td>`).join("")}<td><b>${r.total}</b></td></tr>`).join("");
   const crewXp = CREW_XP.map((x, i) => `${esc(x.label)}: ${p.crewXp[i]}`).join(" · ");
   const tithe = p.titheBoss ? (p.tithePaid ? ` – Tribut an ${esc(p.titheBoss)}: ${p.tithe}` : ` – Tribut an ${esc(p.titheBoss)} <b>nicht gezahlt</b>`) : "";

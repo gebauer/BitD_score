@@ -136,16 +136,11 @@ export const HEAT_MODS = [
   { id: "killing", label: "Leichen", value: 2 }
 ];
 
-/** PC-XP: verzweifelte Würfe je Attribut (Zähler) und Auslöser (0/1/2). */
-export const XP_ATTRS = [
-  { id: "insight", label: "Einsicht" },
-  { id: "prowess", label: "Geschick" },
-  { id: "resolve", label: "Entschlossenheit" }
-];
+/** PC-XP am Ende: drei Fragen, je 0/1/2. Verzweifelte Würfe werden während des Scores auf dem Bogen notiert. */
 export const XP_TRIGGERS = [
-  { id: "playbook", label: "Playbook-Auslöser" },
-  { id: "beliefs", label: "Überzeugungen, Antrieb, Herkunft, Hintergrund" },
-  { id: "vice", label: "Laster oder Trauma ausgelebt" }
+  { id: "playbook", label: "Playbook", ask: "Habt ihr den Playbook-Auslöser erfüllt?" },
+  { id: "beliefs", label: "Hintergrund", ask: "Überzeugungen, Antrieb, Herkunft oder Hintergrund ausgedrückt?" },
+  { id: "vice", label: "Trauma", ask: "Laster oder Trauma ausgelebt – mit Folgen?" }
 ];
 export const CREW_XP = [
   { id: "crewTrigger", label: "Crew-Auslöser" },

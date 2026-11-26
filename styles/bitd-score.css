@@ -378,7 +378,7 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 .bsg-counter button, .bsg-tri button { width: 24px; height: 24px; line-height: 1; padding: 0; }
 .bsg-tri { white-space: nowrap; }
 .bsg-xprow { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.bsg-sub { margin: 6px 0 0; font: 700 16px var(--bs-display); text-transform: uppercase; border-bottom: 1px solid var(--bs-ink); }
+.bsg-sub { margin: 6px 0 0; font: 700 16px var(--bs-display); text-transform: uppercase; border-bottom: 1px solid var(--bs-ink); color: var(--bs-ink); }
 .bsg-sub small { font: 400 12px var(--bs-serif); text-transform: none; }
 .bsg-summary { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
 .bsg-list li > span:last-child { display: flex; gap: 4px; }
@@ -405,3 +405,21 @@ body.bitd-score-table-active #dice-box-canvas { z-index: 200 !important; }
 .bst-entrow.hit { opacity: 1; }
 .bst-entrow.hit b { color: var(--bs-red); }
 .bst-entrow span.chosen { font-weight: 700; text-decoration: underline; }
+
+/* XP: drei Fragen je 0/1/2 */
+.bsg-xpgrid { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto) 32px; gap: 6px 14px; align-items: center; }
+.bsg-xphead { font: 700 15px var(--bs-display); text-transform: uppercase; text-align: center; color: var(--bs-ink); }
+.bsg-xpname { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.bsg-xpname > span { display: flex; flex-direction: column; min-width: 0; }
+.bsg-xpname small, .bsg-xprow small { display: block; font-style: italic; font-size: 12px; opacity: .75; line-height: 1.2; }
+.bsg-xptotal { text-align: center; font: 700 18px var(--bs-display); color: var(--bs-red); }
+.bsg-seg { display: inline-flex; gap: 0; }
+.bsg-seg button { width: 30px; height: 28px; padding: 0; line-height: 1; flex: none; border-radius: 0; margin: 0; font-family: var(--bs-display); font-variant-numeric: lining-nums; }
+.bsg-seg button:first-child { border-radius: 3px 0 0 3px; }
+.bsg-seg button:last-child { border-radius: 0 3px 3px 0; }
+.bsg-xprow > span:first-child { flex: 1; }
+.bst-xpq { display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(0,0,0,.15); padding-top: 8px; }
+.bst-xpask { flex: 1; display: flex; flex-direction: column; font: 700 28px/1.05 var(--bs-display); text-transform: uppercase; }
+.bst-xpask small { font: italic 400 18px/1.2 var(--bs-serif); text-transform: none; opacity: .75; margin-top: 3px; }
+.bst-seg { display: inline-flex; gap: 4px; }
+.bst-board .bst-seg .bst-xpbtn { width: 52px; height: 52px; font-variant-numeric: lining-nums; }

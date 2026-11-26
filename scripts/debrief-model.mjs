@@ -1,4 +1,4 @@
-import { DEBRIEF_STEPS, OUTCOMES, COIN_SIZES, EXPOSURE, HEAT_MODS, XP_ATTRS, XP_TRIGGERS, CREW_XP, ENTANGLEMENTS } from "./data.mjs";
+import { DEBRIEF_STEPS, OUTCOMES, COIN_SIZES, EXPOSURE, HEAT_MODS, XP_TRIGGERS, CREW_XP, ENTANGLEMENTS } from "./data.mjs";
 
 /* ------------------------------------------------------------------
  * Debrief: Datenmodell, Rechenregeln, erlaubte Änderungen und
@@ -6,7 +6,10 @@ import { DEBRIEF_STEPS, OUTCOMES, COIN_SIZES, EXPOSURE, HEAT_MODS, XP_ATTRS, XP_
  * state.mjs es ohne Zirkelbezug nutzen kann.
  * ------------------------------------------------------------------ */
 
-export const emptyPcXp = () => ({ insight: 0, prowess: 0, resolve: 0, playbook: 0, beliefs: 0, vice: 0 });
+export const emptyPcXp = () => ({ playbook: 0, beliefs: 0, vice: 0 });
+
+/** Crew-Typen speichern alle Auslöser als eine „- a - b - c“-Liste – der Crew-Auslöser ist der erste Punkt. */
+export const firstClue = (text) => String(text ?? "").split(/(?:^|\s)-\s+|\n+/).map((t) => t.trim()).filter(Boolean)[0] ?? "";
 
 export const emptyDebrief = () => ({
   outcome: null,
@@ -168,22 +171,13 @@ export function applyDebriefOp(s, op, args, fromGM) {
     if (!s.debriefMeta?.crew?.some((c) => c.id === actor)) return false;
     const key = String(args.key ?? "");
     const xp = (d.pcXp[actor] ??= emptyPcXp());
-    if (XP_ATTRS.some((a) => a.id === key)) {
-      const delta = Number(args.value) === -1 ? -1 : 1;
-      xp[key] = clamp((int(xp[key]) ?? 0) + delta, 0, 9);
-      return true;
-    }
-    if (XP_TRIGGERS.some((t) => t.id === key)) {
-      const v = clamp(int(args.value) ?? 0, 0, 2);
-      xp[key] = xp[key] === v && v > 0 ? v - 1 : v;   // erneut anklicken = eins weniger
-      return true;
-    }
-    return false;
+    if (!XP_TRIGGERS.some((t) => t.id === key)) return false;
+    xp[key] = clamp(int(args.value) ?? 0, 0, 2);
+    return true;
   }
   if (op === "crewxp") {
     if (!fromGM || !CREW_XP.some((x) => x.id === args.key)) return false;
-    const v = clamp(int(args.value) ?? 0, 0, 2);
-    d.crewXp[args.key] = d.crewXp[args.key] === v && v > 0 ? v - 1 : v;
+    d.crewXp[args.key] = clamp(int(args.value) ?? 0, 0, 2);
     return true;
   }
   return false;
@@ -191,7 +185,7 @@ export function applyDebriefOp(s, op, args, fromGM) {
 
 /* ---------------- Anzeige-Kontext (SL-Fenster und Beamer) ---------------- */
 
-const sumXp = (x) => XP_ATTRS.reduce((n, a) => n + (x[a.id] ?? 0), 0) + XP_TRIGGERS.reduce((n, t) => n + (x[t.id] ?? 0), 0);
+const sumXp = (x) => XP_TRIGGERS.reduce((n, t) => n + (Number(x[t.id]) || 0), 0);
 
 export function buildDebriefContext(s) {
   const d = s.debrief ?? emptyDebrief();
@@ -203,7 +197,7 @@ export function buildDebriefContext(s) {
   const zero = c.entZero;
   const entValue = entanglementValue(d.entanglement?.rolled, zero);
   let usedDie = false;
-  const tri = (cur) => [0, 1, 2].map((v) => ({ v, on: (cur ?? 0) >= v && v > 0, selected: (cur ?? 0) === v }));
+  const tri = (cur) => [0, 1, 2].map((v) => ({ v, selected: (Number(cur) || 0) === v }));
 
   return {
     dstep: step, dstepIndex: idx,
@@ -240,8 +234,7 @@ export function buildDebriefContext(s) {
       const x = { ...emptyPcXp(), ...(d.pcXp?.[pc.id] ?? {}) };
       return {
         ...pc, tilt: [-2, 1.5, -1, 2, -1.5, 1][i % 6],
-        attrs: XP_ATTRS.map((a) => ({ ...a, value: x[a.id] ?? 0 })),
-        triggers: XP_TRIGGERS.map((t) => ({ ...t, label: t.id === "playbook" && pc.trigger ? pc.trigger : t.label, short: t.label, opts: tri(x[t.id]) })),
+        triggers: XP_TRIGGERS.map((t) => ({ ...t, detail: t.id === "playbook" && pc.trigger ? pc.trigger : t.ask, opts: tri(x[t.id]) })),
         total: sumXp(x)
       };
     }),
@@ -251,7 +244,8 @@ export function buildDebriefContext(s) {
       const col = Math.min(330, Math.floor((1760 - (n - 1) * gap) / n));
       return `--col:${col}px;--gap:${gap}px`;
     })(),
-    crewXp: CREW_XP.map((x) => ({ ...x, label: x.id === "crewTrigger" && meta.crewTrigger ? meta.crewTrigger : x.label, opts: tri(d.crewXp?.[x.id]) })),
-    crewXpTotal: CREW_XP.reduce((n, x) => n + (d.crewXp?.[x.id] ?? 0), 0)
+    crewXp: CREW_XP.map((x) => ({ ...x, detail: x.id === "crewTrigger" ? firstClue(meta.crewTrigger) : "", value: Number(d.crewXp?.[x.id]) || 0, opts: tri(d.crewXp?.[x.id]) })),
+    crewXpTotal: CREW_XP.reduce((n, x) => n + (Number(d.crewXp?.[x.id]) || 0), 0),
+    xpHeads: XP_TRIGGERS
   };
 }
