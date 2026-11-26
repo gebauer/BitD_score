@@ -23,7 +23,8 @@
     <h3>Abgeschlossene Scores</h3>
     <ul class="bsg-list">
       {{#each finished}}<li><span>{{name}}</span><span><button type="button" data-action="show" data-entry="{{id}}"><i class="fa-solid fa-display"></i> Am Beamer zeigen</button>
-        <button type="button" data-action="debrief" data-entry="{{id}}"><i class="fa-solid fa-pen"></i> Debrief bearbeiten</button></span></li>{{/each}}
+        <button type="button" data-action="debrief" data-entry="{{id}}"><i class="fa-solid fa-pen"></i> Debrief bearbeiten</button>
+        <button type="button" data-action="downtime" data-entry="{{id}}" data-tooltip="Downtime-Seite öffnen"><i class="fa-solid fa-mug-hot"></i></button></span></li>{{/each}}
     </ul>
     {{/if}}
     <h3>Vorbereitete Scores</h3>
@@ -194,6 +195,7 @@
   </section>
   <footer class="bsg-nav">
     <button type="button" data-action="openJournal"><i class="fa-solid fa-book-open"></i> Journal</button>
+    <button type="button" data-action="downtime" data-tooltip="Downtime-Seite des Scores öffnen – frei für RP"><i class="fa-solid fa-mug-hot"></i> Downtime</button>
     <button type="button" data-action="release"><i class="fa-solid fa-map"></i> Beamer: Karte</button>
     <button type="button" data-action="debrief"><i class="fa-solid {{#if scoreDone}}fa-pen{{else}}fa-flag-checkered{{/if}}"></i> {{#if hasDebriefDraft}}Debrief fortsetzen{{else}}{{#if scoreDone}}Debrief bearbeiten{{else}}Score beenden{{/if}}{{/if}}</button>
     <button type="button" class="bsg-big" data-action="start"><i class="fa-solid fa-play"></i> Nächsten Score planen</button>

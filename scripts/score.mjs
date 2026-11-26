@@ -153,6 +153,7 @@ export async function beginScore() {
     pages: [
       { name: "Überblick", type: "text", sort: 100, text: { content: overviewHTML(snap), format: 1 }, flags: { [MOD]: { role: "overview" } } },
       { name: "Notizen", type: "text", sort: 200, ownership: { default: OWN().OWNER }, text: { content: "", format: 1 }, flags: { [MOD]: { role: "notes" } } },
+      downtimePageData(data),
       { name: "🔒 SL", type: "text", sort: 300, ownership: { default: OWN().NONE },
         text: { content: `<p><b>Engagement-Faktoren:</b> ${esc(factorsTxt)}</p>${prep ? prepForGMPage(prep, data.plan) : ""}`, format: 1 }, flags: { [MOD]: { role: "gm" } } }
     ]
@@ -164,6 +165,33 @@ export async function beginScore() {
   });
   if (prep) await markUsed(s.prepId, entry.id);
   return entry;
+}
+
+/* ---------------- Downtime-Seite (frei, für RP) ---------------- */
+
+function downtimePageData(data) {
+  const crew = (data.crew ?? []).map((c) => `<h3>${esc(c.name)}</h3><p></p>`).join("");
+  return {
+    name: "Downtime", type: "text", sort: 250, ownership: { default: OWN().OWNER },
+    text: { format: 1, content: `<p><i>Was ist nach dem Score passiert? Laster, Gespräche, Szenen, Pläne – nur was ihr festhalten wollt.</i></p>${crew}` },
+    flags: { [MOD]: { role: "downtime" } }
+  };
+}
+
+/** Legt die Downtime-Seite an, falls sie fehlt (ältere Scores). */
+export async function ensureDowntimePage(entry) {
+  const page = entry.pages.find((p) => p.getFlag(MOD, "role") === "downtime");
+  if (page) return page;
+  const [created] = await entry.createEmbeddedDocuments("JournalEntryPage", [downtimePageData(entry.getFlag(MOD, "score") ?? {})]);
+  return created;
+}
+
+/** Downtime-Seite des Scores öffnen (bei Bedarf anlegen). */
+export async function openDowntime(entryId) {
+  const entry = game.journal.get(entryId);
+  if (!entry?.getFlag(MOD, "score")) return ui.notifications.warn("Score-Wizard: Kein Score ausgewählt.");
+  const page = await ensureDowntimePage(entry);
+  entry.sheet.render(true, { pageId: page.id });
 }
 
 /** Laufenden Score (wieder) am Beamer zeigen. */

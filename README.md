@@ -57,6 +57,7 @@ Nach dem Score führt der Debrief-Wizard in der Reihenfolge des Regelbuchs (Kap.
 - **Verstrickung:** Spalte nach Heat der Crew (vorher + neu), Würfel = Wanted Level (0 → 2 Würfel, niedrigster). Würfeln oder echte Würfel von Hand eintragen (1–6). Die Tabelle der Spalte wird angezeigt, die gewürfelte Zeile markiert; ein Klick auf einen Eintrag übernimmt ihn. „geheim“ = Wurf nur an die SL, nichts am Beamer und nicht auf der Überblick-Seite.
 - **XP:** pro Figur drei Fragen – **Playbook? Hintergrund? Trauma?** – je 0/1/2, darunter der Playbook-Auslöser vom Bogen. Spieler können am Beamer selbst klicken; Crew-XP setzt die SL. Verzweifelte Würfe notiert ihr wie gewohnt während des Scores auf dem Bogen. Das Buch vergibt diese XP am Ende der *Sitzung* – hier wird pro Score notiert.
 - **Score abschließen:** Ergebnis in die Flags (`flags.bitd-score.score.debrief`), Eintrag wird zu `NN · Name ✓`, die Überblick-Seite bekommt „Payoff & Konsequenzen“, die 🔒 SL-Seite die Verstrickung und SL-Notizen (der Abschnitt „🔒 Debrief“ wird bei erneutem Abschließen ersetzt – eigene Notizen bitte darüber schreiben).
+- **Downtime-Seite:** Jeder Score hat im Journal eine Seite „Downtime“ (alle dürfen schreiben) – frei für RP zwischen den Scores, mit einer Überschrift pro Figur. Nichts davon wird ausgewertet. Ältere Scores bekommen die Seite beim Abschließen oder über den Knopf **Downtime** im SL-Fenster.
 - Makro: `game.modules.get("bitd-score").api.debrief(journalEntryId)`.
 
 ## Scores vorbereiten

@@ -1,7 +1,7 @@
 import { MOD, DEBRIEF_STEPS, OUTCOMES, XP_TRIGGERS, CREW_XP } from "./data.mjs";
 import { getState, setState, clockStyle } from "./state.mjs";
 import { emptyDebrief, emptyPcXp, debriefCalc, entanglementValue, heatModsText, firstClue } from "./debrief-model.mjs";
-import { snapshotFrom, renderOverview, ruleLink } from "./score.mjs";
+import { snapshotFrom, renderOverview, ruleLink, ensureDowntimePage } from "./score.mjs";
 import { getPrep, npcRoleLabel } from "./prep.mjs";
 
 /* ------------------------------------------------------------------
@@ -199,6 +199,7 @@ export async function finishDebrief() {
   const clocks = entry.getFlag(MOD, "clocks") ?? [];
   const snap = snapshotFrom(data, clocks);
   await renderOverview(entry, snap);
+  await ensureDowntimePage(entry);
 
   const gmPage = entry.pages.find((p) => p.getFlag(MOD, "role") === "gm");
   if (gmPage) {

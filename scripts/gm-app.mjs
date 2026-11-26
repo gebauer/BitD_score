@@ -1,6 +1,6 @@
 import { MOD, STEPS, CLOCK_SIZES } from "./data.mjs";
 import { getState, setState, buildContext, request, clockStyle } from "./state.mjs";
-import { startWizard, rereadCrew, resetWizard, rollEngagement, setManualEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
+import { openDowntime, startWizard, rereadCrew, resetWizard, rollEngagement, setManualEngagement, drawObstacles, beginScore, showScore, runningScores, clockOps, ruleLink } from "./score.mjs";
 import { captureFocus, restoreFocus, bindInteractions } from "./ui-common.mjs";
 import { listPreps, getPrep, npcRoleLabel, importPreps } from "./prep.mjs";
 import { openPrepEditor } from "./prep-app.mjs";
@@ -34,6 +34,7 @@ export class ScoreGMApp extends HandlebarsApplicationMixin(ApplicationV2) {
       backToWizard: () => setState((st) => { st.mode = "wizard"; }),
       show: (ev, t) => showScore(t.dataset.entry),
       openJournal: () => { const e = game.journal.get(getState().scoreId); e?.sheet.render(true); },
+      downtime: (ev, t) => openDowntime(t.dataset.entry ?? getState().scoreId),
       clockAdd: ScoreGMApp.#clockAdd,
       clockTick: (ev, t) => clockOps.tick(t.dataset.clock, 1),
       clockRemove: (ev, t) => clockOps.remove(t.dataset.clock),
